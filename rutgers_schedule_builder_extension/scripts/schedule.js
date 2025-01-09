@@ -1,12 +1,12 @@
 class Schedule {
     constructor() {
         this.courses = new Array();
-        this.selected = new Array();
+        this.section_index = new Array();
     }
 
-    append_course(course, selected=false) {
+    append_course(course, selected=-1) {
         this.courses.push(course);
-        this.selected.push(selected);
+        this.section_index.push(selected);
     }
 }
 
