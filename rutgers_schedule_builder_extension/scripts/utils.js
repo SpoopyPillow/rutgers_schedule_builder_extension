@@ -30,11 +30,17 @@ function wait_for_element(selector) {
 }
 
 function remove_element(element) {
+    if (element == null) {
+        return;
+    }
     remove_children(element);
     element.remove();
 }
 
 function remove_children(element) {
+    if (element == null) {
+        return;
+    }
     while (element.firstChild) {
         element.removeChild(element.lastChild);
     }

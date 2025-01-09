@@ -54,6 +54,51 @@ class Schedule {
 
         console.log(schedule_data);
     }
+
+    load_selected_courses() {
+        const schedule_sidebar = document.querySelector(".schedule_sidebar");
+
+        remove_children(schedule_sidebar);
+
+        for (const course_data of this.courses) {
+            const course = document.createElement("div");
+            course.className = "course";
+            course.textContent = course_data.code + " - " + course_data.title.toUpperCase();
+            course.onclick = (event) => {
+                this.toggle_selected_sections(course, course_data);
+            };
+
+            schedule_sidebar.appendChild(course);
+        }
+    }
+
+    toggle_selected_sections(course, course_data) {
+        remove_element(course.parentElement.querySelector(".section_list"));
+
+        if (course.classList.contains("focused_course")) {
+            course.classList.remove("focused_course");
+            return;
+        }
+        course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
+        course.classList.add("focused_course");
+
+        const section_list = document.createElement("div");
+        section_list.className = "section_list";
+
+        for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
+            if (!course_data.selected[section_index]) {
+                continue;
+            }
+
+            const section = document.createElement("div");
+            section.className = "section";
+            section.textContent = course_data.sections[section_index].number;
+
+            section_list.appendChild(section);
+        }
+
+        course.after(section_list);
+    }
 }
 
 class Course {

@@ -29,6 +29,7 @@ function structure_sidebar() {
 function update_schedule_builder() {
     remove_original_meetings();
     schedule_data.extract_selected_courses();
+    schedule_data.load_selected_courses();
 }
 
 function remove_original_meetings() {
