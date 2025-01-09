@@ -1,0 +1,20 @@
+{
+    "manifest_version": 3,
+    "name": "Better Rutgers Schedule Builder",
+    "description": "Reworks Rutger's Course Schedule Planner to be more user-friendly.",
+    "version": "1.0",
+    "permissions": ["activeTab", "scripting"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup/popup.html",
+        "default_title": "Better Rutgers Schedule Builder"
+    },
+    "content_scripts": [
+        {
+            "js": ["scripts/content.js"],
+            "matches": ["https://sims.rutgers.edu/csp/builder.htm*"]
+        }
+    ]
+}
