@@ -1,1 +1,1 @@
-var selected_courses = new Array();
+var schedule_data = new Schedule();

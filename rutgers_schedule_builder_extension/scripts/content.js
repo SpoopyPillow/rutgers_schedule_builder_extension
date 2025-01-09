@@ -20,7 +20,7 @@ function remove_original_meetings() {
 }
 
 function extract_selected_courses() {
-    selected_courses = new Array();
+    schedule_data = new Schedule();
 
     const section_select = document.getElementById("SectionSelectID");
 
@@ -33,19 +33,14 @@ function extract_selected_courses() {
                 ":" +
                 course.querySelector(".number .number").textContent,
             course.querySelector(".title").textContent,
-            new Array()
         );
 
         const sections = course.querySelectorAll('tr[dojoattachpoint="sectionMainArea"]');
         for (const section of sections) {
-            if (!section.querySelector("input").checked) {
-                continue;
-            }
             const section_data = new Section(
                 section.querySelector('td[title="Index Number"]').textContent,
                 section.querySelector('td[title="Section Number"]').textContent,
                 section.querySelector('td[title="Section Status"]').textContent,
-                new Array()
             );
 
             const meetings = section.querySelectorAll('tr[id^="csp_view_domain_Meeting_"]');
@@ -58,14 +53,16 @@ function extract_selected_courses() {
                     meeting.querySelector(".location").textContent
                 );
 
-                section_data.meetings.push(meeting_data);
+                section_data.append_meeting(meeting_data);
             }
 
-            course_data.sections.push(section_data);
+            course_data.append_section(section_data, section.querySelector('input').checked);
         }
 
-        selected_courses.push(course_data);
+        schedule_data.append_course(course_data);
     }
+
+    console.log(schedule_data);
 }
 
 async function inject_content() {

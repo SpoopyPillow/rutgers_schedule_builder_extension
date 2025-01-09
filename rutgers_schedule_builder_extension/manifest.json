@@ -13,7 +13,7 @@
     },
     "content_scripts": [
         {
-            "js": ["scripts/global.js", "scripts/course.js", "scripts/utils.js", "scripts/content.js"],
+            "js": ["scripts/schedule.js", "scripts/global.js", "scripts/utils.js", "scripts/content.js"],
             "matches": ["https://sims.rutgers.edu/csp/builder.htm*"]
         }
     ]
