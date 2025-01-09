@@ -1,5 +1,19 @@
-function get_build_tab() {
-    return document.getElementById("CSPBuildScheduleTab");
+function format_time(time) {
+    const [hours, minutes, period] = time.match(/(\d+):(\d+) (\w+)/).slice(1);
+    let militaryHours = parseInt(hours);
+
+    if (period.toLowerCase() === "pm" && militaryHours !== 12) {
+        militaryHours += 12;
+    } else if (period.toLowerCase() === "am" && militaryHours === 12) {
+        militaryHours = 0;
+    }
+
+    return militaryHours + ":" + minutes;
+}
+
+function to_minutes(time) {
+    const [hours, minutes] = time.split(":").map((value) => parseInt(value));
+    return hours * 60 + minutes;
 }
 
 function wait_for_element(selector) {

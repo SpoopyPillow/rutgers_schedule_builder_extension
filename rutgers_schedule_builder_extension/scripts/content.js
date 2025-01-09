@@ -1,19 +1,70 @@
 function restructure_original() {
-    const tab_link = document.querySelector(
-        'div[widgetid="dijit_layout__TabButton_2"]'
-    );
-    tab_link.addEventListener("click", remove_meetings);
+    const tab_link = document.querySelector('div[widgetid="dijit_layout__TabButton_2"]');
+    tab_link.addEventListener("click", update_schedule_builder);
 
-    remove_meetings();
+    remove_original_meetings();
+    extract_selected_courses();
 }
 
-function remove_meetings() {
-    const meetings = get_build_tab().querySelectorAll(
-        'div[class^="MeetingTime  campus_"]'
-    );
+function update_schedule_builder() {
+    extract_selected_courses();
+    remove_original_meetings();
+}
+
+function remove_original_meetings() {
+    const meetings = document.querySelectorAll('#CSPBuildScheduleTab div[class^="MeetingTime  campus_"]');
 
     for (const meeting of meetings) {
         remove_element(meeting);
+    }
+}
+
+function extract_selected_courses() {
+    selected_courses = new Array();
+
+    const section_select = document.getElementById("SectionSelectID");
+
+    const courses = section_select.querySelectorAll(".course");
+    for (const course of courses) {
+        const course_data = new Course(
+            course.querySelector(".number .unit-code").textContent +
+                ":" +
+                course.querySelector(".number .subject").textContent +
+                ":" +
+                course.querySelector(".number .number").textContent,
+            course.querySelector(".title").textContent,
+            new Array()
+        );
+
+        const sections = course.querySelectorAll('tr[dojoattachpoint="sectionMainArea"]');
+        for (const section of sections) {
+            if (!section.querySelector("input").checked) {
+                continue;
+            }
+            const section_data = new Section(
+                section.querySelector('td[title="Index Number"]').textContent,
+                section.querySelector('td[title="Section Number"]').textContent,
+                section.querySelector('td[title="Section Status"]').textContent,
+                new Array()
+            );
+
+            const meetings = section.querySelectorAll('tr[id^="csp_view_domain_Meeting_"]');
+            for (const meeting of meetings) {
+                const meeting_data = new Meeting(
+                    meeting.querySelector(".weekday").textContent.toLowerCase(),
+                    format_time(meeting.querySelector(".time").textContent.split("-")[0]),
+                    format_time(meeting.querySelector(".time").textContent.split("-")[1]),
+                    meeting.querySelector(".location3").textContent.toLowerCase(),
+                    meeting.querySelector(".location").textContent
+                );
+
+                section_data.meetings.push(meeting_data);
+            }
+
+            course_data.sections.push(section_data);
+        }
+
+        selected_courses.push(course_data);
     }
 }
 
