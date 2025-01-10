@@ -2,3 +2,7 @@
     position: absolute;
     width: 100%;
 }
+
+.unfocused_section {
+    opacity: 0.25;
+}

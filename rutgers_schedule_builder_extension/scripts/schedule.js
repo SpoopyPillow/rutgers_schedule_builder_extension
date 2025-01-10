@@ -85,7 +85,13 @@ class Schedule {
                 this.toggle_select_schedule_section(course_index, section_index);
             };
 
-            section.onmouseenter = (event) => {};
+            section.onmouseenter = (event) => {
+                this.hover_schedule_section(course_index, section_index);
+            };
+
+            section.onmouseleave = (event) => {
+                this.unhover_schedule_section();
+            };
 
             section_list.appendChild(section);
         }
@@ -94,42 +100,79 @@ class Schedule {
     }
 
     toggle_select_schedule_section(course_index, section_index) {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+        const day_columns = schedule.querySelectorAll(".DaySpanDisplay");
+
         this.section_index[course_index] = this.section_index[course_index] === section_index ? -1 : section_index;
-        this.load_schedule();
+        this.remove_schedule_section(course_index);
+        this.load_schedule_section(course_index, this.section_index[course_index]);
     }
 
     load_schedule() {
         const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
-        const day_columns = schedule.querySelectorAll(".DaySpanDisplay");
 
         for (const meeting of schedule.querySelectorAll(".schedule_meeting")) {
             remove_element(meeting);
         }
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
-            const course_data = this.courses[course_index];
             const section_index = this.section_index[course_index];
 
-            if (section_index === -1) {
-                continue;
-            }
-
-            const section_data = course_data.sections[section_index];
-            this.load_schedule_section(course_data, section_data);
+            this.load_schedule_section(course_index, section_index);
         }
     }
 
-    load_schedule_section(course_data, section_data) {
+    hover_schedule_section(course_index, section_index) {
+        if (this.section_index[course_index] === section_index) {
+            return;
+        }
+
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
+            meeting.classList.add("unfocused_section");
+        });
+
+        this.load_schedule_section(course_index, section_index);
+        schedule
+            .querySelectorAll(".schedule_meeting.course_" + course_index + ":not(.unfocused_section)")
+            .forEach((meeting) => {
+                meeting.classList.add("focused_section");
+            });
+    }
+
+    unhover_schedule_section() {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        schedule.querySelectorAll(".focused_section").forEach((meeting) => {
+            remove_element(meeting);
+        });
+
+        schedule.querySelectorAll(".unfocused_section").forEach((meeting) => {
+            meeting.classList.remove("unfocused_section");
+        });
+    }
+
+    load_schedule_section(course_index, section_index) {
+        if (section_index === -1) {
+            return;
+        }
+
         const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
         const day_columns = schedule.querySelectorAll(".DaySpanDisplay");
 
+        const course_data = this.courses[course_index];
+        const section_data = course_data.sections[section_index];
+
         for (const meeting_data of section_data.meetings) {
             const meeting = document.createElement("div");
-            meeting.className =
-                "schedule_meeting MeetingTime campus_" +
-                Schedule.campus_to_num(meeting_data.campus) +
-                " " +
-                section_data.status;
+            meeting.className = [
+                "schedule_meeting",
+                "MeetingTime",
+                "campus_" + Schedule.campus_to_num(meeting_data.campus),
+                section_data.status,
+                "course_" + course_index,
+            ].join(" ");
 
             const interval_minutes = to_minutes(Schedule.END_TIME) - to_minutes(Schedule.START_TIME);
             const start_pos =
@@ -142,6 +185,14 @@ class Schedule {
 
             day_columns[Schedule.day_to_num(meeting_data.day)].appendChild(meeting);
         }
+    }
+
+    remove_schedule_section(course_index) {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
+            remove_element(meeting);
+        });
     }
 }
 
