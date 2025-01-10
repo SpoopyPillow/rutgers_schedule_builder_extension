@@ -33,6 +33,24 @@ class Schedule {
         return Schedule.CAMPUS_NUM[campus.toLowerCase()] ?? 8;
     }
 
+    static campus_travel_time(campus1, campus2) {
+        if (campus1 == campus2) {
+            return 0;
+        } else if (
+            (campus1 == "busch" && campus2 == "livingston") ||
+            (campus1 == "livingston" && campus2 == "busch")
+        ) {
+            return 0;
+        } else if (
+            (campus1 == "college avenue" && campus2 == "downtown") ||
+            (campus1 == "downtown" && campus2 == "college avenue")
+        ) {
+            return 0;
+        } else {
+            return 40;
+        }
+    }
+
     append_course(course, selected = -1) {
         this.courses.push(course);
         this.section_index.push(selected);
@@ -101,9 +119,13 @@ class Schedule {
 
     toggle_select_schedule_section(course_index, section_index) {
         const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
-        const day_columns = schedule.querySelectorAll(".DaySpanDisplay");
 
         this.section_index[course_index] = this.section_index[course_index] === section_index ? -1 : section_index;
+
+        for (const overlap_index of this.schedule_overlap(course_index)) {
+            this.remove_schedule_section(overlap_index);
+        }
+
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.section_index[course_index]);
     }
@@ -138,6 +160,9 @@ class Schedule {
             .querySelectorAll(".schedule_meeting.course_" + course_index + ":not(.unfocused_section)")
             .forEach((meeting) => {
                 meeting.classList.add("focused_section");
+                meeting.style.boxShadow =
+                    "0px 0px 0px 7px " + window.getComputedStyle(meeting).backgroundColor + " inset";
+                meeting.style.background = "none";
             });
     }
 
@@ -193,6 +218,61 @@ class Schedule {
         schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
             remove_element(meeting);
         });
+    }
+
+    schedule_overlap(inserted = null) {
+        const day_intervals = {};
+
+        for (const [course_index, section_index] of this.section_index.entries()) {
+            if (section_index == -1) {
+                continue;
+            }
+            const course = this.courses[course_index];
+            const section = course.sections[section_index];
+
+            for (const section_class of section.meetings) {
+                if (section_class.start_time == null) {
+                    continue;
+                }
+
+                const day = section_class.day;
+
+                if (!(day in day_intervals)) {
+                    day_intervals[day] = [];
+                }
+
+                day_intervals[day].push([
+                    to_minutes(section_class.start_time),
+                    to_minutes(section_class.end_time),
+                    section_class.campus,
+                    course_index,
+                ]);
+            }
+        }
+
+        const interfering = new Set();
+        for (const [day, intervals] of Object.entries(day_intervals)) {
+            intervals.sort((a, b) => a[0] - b[0]);
+
+            for (var i = 1; i < intervals.length; i++) {
+                const cur = intervals[i];
+                const prev = intervals[i - 1];
+                if (cur[0] >= prev[1] + Schedule.campus_travel_time(prev[2], cur[2])) {
+                    continue;
+                }
+
+                if (inserted != null) {
+                    interfering.add(cur[3] == inserted ? prev[3] : cur[3]);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        if (inserted != null) {
+            return interfering;
+        }
+        return true;
     }
 }
 
