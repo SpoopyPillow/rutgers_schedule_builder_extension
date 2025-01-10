@@ -22,7 +22,7 @@ class Schedule {
 
     constructor() {
         this.courses = new Array();
-        this.section_index = new Array();
+        this.schedule_section = new Array();
     }
 
     static day_to_num(day) {
@@ -53,7 +53,7 @@ class Schedule {
 
     append_course(course, selected = -1) {
         this.courses.push(course);
-        this.section_index.push(selected);
+        this.schedule_section.push(selected);
     }
 
     load_course_list() {
@@ -118,16 +118,16 @@ class Schedule {
     }
 
     toggle_select_schedule_section(course_index, section_index) {
-        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
-
-        this.section_index[course_index] = this.section_index[course_index] === section_index ? -1 : section_index;
+        this.schedule_section[course_index] =
+            this.schedule_section[course_index] === section_index ? -1 : section_index;
 
         for (const overlap_index of this.schedule_overlap(course_index)) {
+            this.schedule_section[overlap_index] = -1;
             this.remove_schedule_section(overlap_index);
         }
 
         this.remove_schedule_section(course_index);
-        this.load_schedule_section(course_index, this.section_index[course_index]);
+        this.load_schedule_section(course_index, this.schedule_section[course_index]);
     }
 
     load_schedule() {
@@ -138,14 +138,14 @@ class Schedule {
         }
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
-            const section_index = this.section_index[course_index];
+            const section_index = this.schedule_section[course_index];
 
             this.load_schedule_section(course_index, section_index);
         }
     }
 
     hover_schedule_section(course_index, section_index) {
-        if (this.section_index[course_index] === section_index) {
+        if (this.schedule_section[course_index] === section_index) {
             return;
         }
 
@@ -164,6 +164,17 @@ class Schedule {
                     "0px 0px 0px 7px " + window.getComputedStyle(meeting).backgroundColor + " inset";
                 meeting.style.background = "none";
             });
+
+        const previous = this.schedule_section[course_index];
+
+        this.schedule_section[course_index] = section_index;
+        for (const overlap_index of this.schedule_overlap(course_index)) {
+            schedule.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
+                meeting.classList.add("overlapping_section");
+            });
+        }
+
+        this.schedule_section[course_index] = previous;
     }
 
     unhover_schedule_section() {
@@ -175,6 +186,10 @@ class Schedule {
 
         schedule.querySelectorAll(".unfocused_section").forEach((meeting) => {
             meeting.classList.remove("unfocused_section");
+        });
+
+        schedule.querySelectorAll(".overlapping_section").forEach((meeting) => {
+            meeting.classList.remove("overlapping_section");
         });
     }
 
@@ -223,7 +238,7 @@ class Schedule {
     schedule_overlap(inserted = null) {
         const day_intervals = {};
 
-        for (const [course_index, section_index] of this.section_index.entries()) {
+        for (const [course_index, section_index] of this.schedule_section.entries()) {
             if (section_index == -1) {
                 continue;
             }
