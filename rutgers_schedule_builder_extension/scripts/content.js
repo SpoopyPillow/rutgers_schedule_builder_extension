@@ -9,13 +9,13 @@ function restructure_original() {
 function structure_sidebar() {
     const schedule_builder = document.getElementById("CSPBuildScheduleTab");
 
-    // SCHEDULE VIEW
-    const schedule_view = document.createElement("div");
-    schedule_view.className =
-        "schedule_view dijitContentPane dijitBorderContainer-dijitContentPane dijitBorderContainerPane";
-    schedule_view.style = "inset: 5px 5px 5px 310px";
-    [...schedule_builder.childNodes].forEach((child) => schedule_view.appendChild(child));
-    schedule_builder.appendChild(schedule_view);
+    // SCHEDULE CONTENT
+    const schedule_content = document.createElement("div");
+    schedule_content.className =
+        "schedule_content dijitContentPane dijitBorderContainer-dijitContentPane dijitBorderContainerPane";
+    schedule_content.style = "inset: 5px 5px 5px 310px";
+    [...schedule_builder.childNodes].forEach((child) => schedule_content.appendChild(child));
+    schedule_builder.appendChild(schedule_content);
 
     // SCHEDULE SIDEBAR
     const sidebar = document.createElement("div");
@@ -28,8 +28,8 @@ function structure_sidebar() {
 
 function update_schedule_builder() {
     remove_original_meetings();
-    schedule_data.extract_selected_courses();
-    schedule_data.load_selected_courses();
+    extract_selected_courses();
+    schedule_data.load_course_list();
 }
 
 function remove_original_meetings() {
@@ -38,6 +38,52 @@ function remove_original_meetings() {
     for (const meeting of meetings) {
         remove_element(meeting);
     }
+}
+
+function extract_selected_courses() {
+    schedule_data = new Schedule();
+
+    const section_select = document.getElementById("SectionSelectID");
+
+    const courses = section_select.querySelectorAll(".course");
+    for (const course of courses) {
+        const course_data = new Course(
+            course.querySelector(".number .unit-code").textContent +
+                ":" +
+                course.querySelector(".number .subject").textContent +
+                ":" +
+                course.querySelector(".number .number").textContent,
+            course.querySelector(".title").textContent
+        );
+
+        const sections = course.querySelectorAll('tr[dojoattachpoint="sectionMainArea"]');
+        for (const section of sections) {
+            const section_data = new Section(
+                section.querySelector('td[title="Index Number"]').textContent,
+                section.querySelector('td[title="Section Number"]').textContent,
+                section.querySelector('td[title="Section Status"]').textContent
+            );
+
+            const meetings = section.querySelectorAll('tr[id^="csp_view_domain_Meeting_"]');
+            for (const meeting of meetings) {
+                const meeting_data = new Meeting(
+                    meeting.querySelector(".weekday").textContent.toLowerCase(),
+                    format_time(meeting.querySelector(".time").textContent.split("-")[0]),
+                    format_time(meeting.querySelector(".time").textContent.split("-")[1]),
+                    meeting.querySelector(".location3").textContent.toLowerCase(),
+                    meeting.querySelector(".location").textContent
+                );
+
+                section_data.append_meeting(meeting_data);
+            }
+
+            course_data.append_section(section_data, section.querySelector("input").checked);
+        }
+
+        schedule_data.append_course(course_data);
+    }
+
+    console.log(schedule_data);
 }
 
 async function inject_content() {
