@@ -25,6 +25,14 @@ class Schedule {
         this.section_index = new Array();
     }
 
+    static day_to_num(day) {
+        return Schedule.DAY_NUM[day.toLowerCase()];
+    }
+
+    static campus_to_num(campus) {
+        return Schedule.CAMPUS_NUM[campus.toLowerCase()] ?? 8;
+    }
+
     append_course(course, selected = -1) {
         this.courses.push(course);
         this.section_index.push(selected);
@@ -77,6 +85,8 @@ class Schedule {
                 this.toggle_select_schedule_section(course_index, section_index);
             };
 
+            section.onmouseenter = (event) => {};
+
             section_list.appendChild(section);
         }
 
@@ -105,39 +115,33 @@ class Schedule {
             }
 
             const section_data = course_data.sections[section_index];
-            for (const meeting_data of section_data.meetings) {
-                const meeting = this.create_schedule_meeting(course_data, section_data, meeting_data);
-                day_columns[this.day_to_num(meeting_data.day)].appendChild(meeting);
-            }
+            this.load_schedule_section(course_data, section_data);
         }
     }
 
-    create_schedule_meeting(course_data, section_data, meeting_data) {
-        const meeting = document.createElement("div");
-        meeting.className =
-            "schedule_meeting MeetingTime campus_" +
-            this.campus_to_num(meeting_data.campus) +
-            " " +
-            section_data.status;
+    load_schedule_section(course_data, section_data) {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+        const day_columns = schedule.querySelectorAll(".DaySpanDisplay");
 
-        const interval_minutes = to_minutes(Schedule.END_TIME) - to_minutes(Schedule.START_TIME);
-        const start_pos =
-            ((to_minutes(meeting_data.start_time) - to_minutes(Schedule.START_TIME)) / interval_minutes) * 100;
-        const end_pos =
-            ((to_minutes(meeting_data.end_time) - to_minutes(Schedule.START_TIME)) / interval_minutes) * 100;
+        for (const meeting_data of section_data.meetings) {
+            const meeting = document.createElement("div");
+            meeting.className =
+                "schedule_meeting MeetingTime campus_" +
+                Schedule.campus_to_num(meeting_data.campus) +
+                " " +
+                section_data.status;
 
-        meeting.style.top = start_pos + "%";
-        meeting.style.height = end_pos - start_pos + "%";
+            const interval_minutes = to_minutes(Schedule.END_TIME) - to_minutes(Schedule.START_TIME);
+            const start_pos =
+                ((to_minutes(meeting_data.start_time) - to_minutes(Schedule.START_TIME)) / interval_minutes) * 100;
+            const end_pos =
+                ((to_minutes(meeting_data.end_time) - to_minutes(Schedule.START_TIME)) / interval_minutes) * 100;
 
-        return meeting;
-    }
+            meeting.style.top = start_pos + "%";
+            meeting.style.height = end_pos - start_pos + "%";
 
-    day_to_num(day) {
-        return Schedule.DAY_NUM[day.toLowerCase()];
-    }
-
-    campus_to_num(campus) {
-        return Schedule.CAMPUS_NUM[campus.toLowerCase()] ?? 8;
+            day_columns[Schedule.day_to_num(meeting_data.day)].appendChild(meeting);
+        }
     }
 }
 
