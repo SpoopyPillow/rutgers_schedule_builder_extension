@@ -185,6 +185,10 @@ class Schedule {
 
         const course_data = this.courses[course_index];
         for (let section_index = 0; section_index < course_data.sections.length; section_index++) {
+            if (!course_data.selected[section_index]) {
+                continue;
+            }
+
             const section = schedule_sidebar.querySelector(".possible_sections .section_" + section_index);
 
             if (!this.schedule_overlap_with([[course_index, section_index]])) {
