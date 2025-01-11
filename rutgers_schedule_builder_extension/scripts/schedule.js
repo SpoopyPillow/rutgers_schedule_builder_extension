@@ -56,7 +56,7 @@ class Schedule {
         this.schedule_section.push(selected);
     }
 
-    load_course_list() {
+    async load_course_list() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
 
         remove_children(schedule_sidebar);
@@ -64,14 +64,29 @@ class Schedule {
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
             const course_data = this.courses[course_index];
 
-            const course = document.createElement("div");
-            course.className = "course";
-            course.textContent = course_data.code + " - " + course_data.title;
+            const template = (await load_template("template_course")).content.cloneNode(true);
+            const course = template.querySelector(".course");
+
+            course.querySelector(".code").textContent = course_data.code;
+            course.querySelector(".title").textContent = course_data.title;
+
             course.onclick = (event) => {
                 this.toggle_section_list(course, course_index);
             };
 
-            schedule_sidebar.appendChild(course);
+            course.onmouseenter = (event) => {
+                if (schedule_sidebar.querySelector(".focused_course") == null) {
+                    this.focus_schedule_course(course_index);
+                }
+            };
+
+            course.onmouseleave = (event) => {
+                if (schedule_sidebar.querySelector(".focused_course") == null) {
+                    this.unfocus_schedule_course();
+                }
+            };
+
+            schedule_sidebar.appendChild(template);
         }
     }
 
@@ -89,9 +104,9 @@ class Schedule {
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
-        const template = (await load_template("template_section_list")).content.cloneNode(true);
-        const section_list = template.querySelector(".section_list");
+        const template_section_list = (await load_template("template_section_list")).content.cloneNode(true);
 
+        const section_list = template_section_list.querySelector(".section_list");
         const possible_sections = section_list.querySelector(".possible_sections");
 
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
@@ -99,9 +114,12 @@ class Schedule {
                 continue;
             }
 
-            const section = document.createElement("div");
-            section.className = "section_" + section_index;
-            section.textContent = course_data.sections[section_index].number;
+            const template_section = (await load_template("template_section")).content.cloneNode(true);
+
+            const section = template_section.querySelector(".section");
+            section.classList.add("section_" + section_index);
+
+            section.querySelector(".number").textContent = course_data.sections[section_index].number;
 
             section.onclick = (event) => {
                 this.toggle_select_schedule_section(course_index, section_index);
@@ -115,10 +133,10 @@ class Schedule {
                 this.unhover_schedule_section();
             };
 
-            possible_sections.appendChild(section);
+            possible_sections.appendChild(template_section);
         }
 
-        course.after(section_list);
+        course.after(template_section_list);
         this.sync_overlapping_sections(course_index);
         this.sync_selected_section(course_index);
     }

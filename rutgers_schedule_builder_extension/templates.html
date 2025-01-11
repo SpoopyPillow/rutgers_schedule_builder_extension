@@ -1,13 +1,29 @@
-<template id="template_course_information">
-    <div class="course_information">
+<template id="template_course">
+    <div class="course">
+        <div class="code"></div>
         <div class="title"></div>
     </div>
 </template>
 
 <template id="template_section_list">
     <div class="section_list">
-        <div class="selected_section"></div>
-        <div class="possible_sections"></div>
-        <div class="overlapping_sections"></div>
+        <div class="selected_section_wrapper">
+            <p>Selected Sections</p>
+            <div class="selected_section"></div>
+        </div>
+        <div class="possible_sections_wrapper">
+            <p>Section Choices</p>
+            <div class="possible_sections"></div>
+        </div>
+        <div class="overlapping_sections_wrapper">
+            <p>Overlapping Sections</p>
+            <div class="overlapping_sections"></div>
+        </div>
+    </div>
+</template>
+
+<template id="template_section">
+    <div class="section">
+        <div class="number"></div>
     </div>
 </template>
