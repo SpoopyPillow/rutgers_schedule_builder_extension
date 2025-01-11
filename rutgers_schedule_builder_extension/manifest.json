@@ -13,9 +13,15 @@
     },
     "content_scripts": [
         {
-            "js": ["scripts/schedule.js", "scripts/global.js", "scripts/utils.js", "scripts/content.js"],
+            "js": ["scripts/utils.js", "scripts/schedule.js", "scripts/global.js", "scripts/content.js"],
             "css": ["scripts/schedule_builder.css"],
             "matches": ["https://sims.rutgers.edu/csp/builder.htm*"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["templates.html"],
+            "matches": ["<all_urls>"]
         }
     ]
 }

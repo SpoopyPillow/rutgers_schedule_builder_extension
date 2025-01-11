@@ -57,7 +57,7 @@ class Schedule {
     }
 
     load_course_list() {
-        const schedule_sidebar = document.querySelector(".schedule_sidebar");
+        const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
 
         remove_children(schedule_sidebar);
 
@@ -75,7 +75,7 @@ class Schedule {
         }
     }
 
-    toggle_section_list(course, course_index) {
+    async toggle_section_list(course, course_index) {
         const course_data = this.courses[course_index];
 
         this.unfocus_schedule_course();
@@ -89,8 +89,12 @@ class Schedule {
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
-        const section_list = document.createElement("div");
-        section_list.className = "section_list";
+        const template = (await load_template("template_section_list")).content.cloneNode(true);
+        const section_list = template.querySelector(".section_list");
+
+        const selected_section = section_list.querySelector(".selected_section");
+        const possible_section = section_list.querySelector(".possible_section");
+        const overlap_section = section_list.querySelector(".overlap_section");
 
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
             if (!course_data.selected[section_index]) {
@@ -98,7 +102,7 @@ class Schedule {
             }
 
             const section = document.createElement("div");
-            section.className = "section";
+            section.className = "section_" + section_index;
             section.textContent = course_data.sections[section_index].number;
 
             section.onclick = (event) => {
@@ -113,23 +117,42 @@ class Schedule {
                 this.unhover_schedule_section();
             };
 
-            section_list.appendChild(section);
+            possible_section.appendChild(section);
         }
 
         course.after(section_list);
+        this.sync_selected_section(course_index);
     }
 
     toggle_select_schedule_section(course_index, section_index) {
         this.schedule_section[course_index] =
             this.schedule_section[course_index] === section_index ? -1 : section_index;
 
+        this.sync_selected_section(course_index);
+
         for (const overlap_index of this.schedule_overlap(course_index)) {
             this.schedule_section[overlap_index] = -1;
             this.remove_schedule_section(overlap_index);
         }
-
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.schedule_section[course_index]);
+    }
+
+    sync_selected_section(course_index) {
+        const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
+        const selected_section = schedule_sidebar.querySelector(".selected_section");
+
+        remove_children(selected_section);
+
+        const section_index = this.schedule_section[course_index];
+        if (section_index === -1) {
+            return;
+        }
+
+        const section = schedule_sidebar.querySelector(".possible_section .section_" + section_index);
+        const clone = section.cloneNode(true);
+        clone.onclick = section.onclick;
+        selected_section.appendChild(clone);
     }
 
     load_schedule() {

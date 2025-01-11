@@ -1,3 +1,11 @@
+async function load_template(template_id) {
+    const url = chrome.runtime.getURL("templates.html");
+    const templates = document.createElement("div");
+    templates.innerHTML = await (await fetch(url)).text();
+    const template = templates.querySelector("#" + template_id);
+    return template;
+}
+
 function format_time(time) {
     const [hours, minutes, period] = time.match(/(\d+):(\d+) (\w+)/).slice(1);
     let militaryHours = parseInt(hours);
