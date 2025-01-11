@@ -34,10 +34,12 @@ function update_schedule_builder() {
 
 function remove_original_meetings() {
     const meetings = document.querySelectorAll('#CSPBuildScheduleTab div[class^="MeetingTime  campus_"]');
-
     for (const meeting of meetings) {
         remove_element(meeting);
     }
+
+    const async_courses = document.getElementById("byArrangementCoursesDiv");
+    remove_children(async_courses);
 }
 
 function extract_selected_courses() {

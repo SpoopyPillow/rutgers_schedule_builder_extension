@@ -56,16 +56,18 @@ class Schedule {
         this.schedule_section.push(selected);
     }
 
+    // TODO Fix bug when loading back on
     async load_course_list() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
+        const template = await load_template("template_course");
 
         remove_children(schedule_sidebar);
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
             const course_data = this.courses[course_index];
 
-            const template = (await load_template("template_course")).content.cloneNode(true);
-            const course = template.querySelector(".course");
+            const template_clone = template.content.cloneNode(true);
+            const course = template_clone.querySelector(".course");
 
             course.querySelector(".code").textContent = course_data.code;
             course.querySelector(".title").textContent = course_data.title;
@@ -86,7 +88,7 @@ class Schedule {
                 }
             };
 
-            schedule_sidebar.appendChild(template);
+            schedule_sidebar.appendChild(template_clone);
         }
     }
 
@@ -104,19 +106,20 @@ class Schedule {
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
-        const template_section_list = (await load_template("template_section_list")).content.cloneNode(true);
+        const template_section_list_clone = (await load_template("template_section_list")).content.cloneNode(true);
+        const section_list = template_section_list_clone.querySelector(".section_list");
+        const possible_sections = section_list.querySelector(".possible_sections_list");
 
-        const section_list = template_section_list.querySelector(".section_list");
-        const possible_sections = section_list.querySelector(".possible_sections");
+        const template_section = await load_template("template_section");
 
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
             if (!course_data.selected[section_index]) {
                 continue;
             }
 
-            const template_section = (await load_template("template_section")).content.cloneNode(true);
+            const template_section_clone = template_section.content.cloneNode(true);
 
-            const section = template_section.querySelector(".section");
+            const section = template_section_clone.querySelector(".section");
             section.classList.add("section_" + section_index);
 
             section.querySelector(".number").textContent = course_data.sections[section_index].number;
@@ -133,10 +136,10 @@ class Schedule {
                 this.unhover_schedule_section();
             };
 
-            possible_sections.appendChild(template_section);
+            possible_sections.appendChild(template_section_clone);
         }
 
-        course.after(template_section_list);
+        course.after(template_section_list_clone);
         this.sync_overlapping_sections(course_index);
         this.sync_selected_section(course_index);
     }
@@ -158,11 +161,12 @@ class Schedule {
 
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.schedule_section[course_index]);
+        this.load_async_courses();
     }
 
     sync_selected_section(course_index) {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
-        const selected_section = schedule_sidebar.querySelector(".selected_section");
+        const selected_section = schedule_sidebar.querySelector(".selected_section_list");
 
         remove_children(selected_section);
 
@@ -175,13 +179,13 @@ class Schedule {
             return;
         }
 
-        const section = schedule_sidebar.querySelector(".possible_sections .section_" + section_index);
+        const section = schedule_sidebar.querySelector(".possible_sections_list .section_" + section_index);
         selected_section.appendChild(clone_with_sync(section));
     }
 
     sync_overlapping_sections(course_index) {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
-        const overlapping_sections = schedule_sidebar.querySelector(".overlapping_sections");
+        const overlapping_sections = schedule_sidebar.querySelector(".overlapping_sections_list");
 
         const course_data = this.courses[course_index];
         for (let section_index = 0; section_index < course_data.sections.length; section_index++) {
@@ -189,7 +193,7 @@ class Schedule {
                 continue;
             }
 
-            const section = schedule_sidebar.querySelector(".possible_sections .section_" + section_index);
+            const section = schedule_sidebar.querySelector(".possible_sections_list .section_" + section_index);
 
             if (!this.schedule_overlap_with([[course_index, section_index]])) {
                 section.style.display = "";
@@ -233,7 +237,6 @@ class Schedule {
 
         for (const meeting_data of section_data.meetings) {
             if (meeting_data.start_time === null) {
-                // TODO UPDATE ASYNCHRONOUS COURSE LIST
                 continue;
             }
 
@@ -265,6 +268,44 @@ class Schedule {
         schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
             remove_element(meeting);
         });
+    }
+
+    async load_async_courses() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        const template = await load_template("template_async_course");
+
+        remove_children(async_courses);
+
+        let position = 0;
+        for (const [course_index, section_index] of this.schedule_section.entries()) {
+            if (section_index === -1) {
+                continue;
+            }
+
+            const course_data = this.courses[course_index];
+            const section_data = course_data.sections[section_index];
+
+            if (
+                !section_data.meetings
+                    .map((meeting) => meeting.start_time)
+                    .some((start_time) => start_time === null)
+            ) {
+                continue;
+            }
+            position += 1;
+
+            const template_clone = template.content.cloneNode(true);
+            const async_course = template_clone.querySelector(".async_course");
+
+            async_course.querySelector(".position").textContent = "[" + position + "]";
+            async_course.querySelector(".title").textContent = course_data.title;
+            async_course.querySelector(".code").textContent = course_data.code;
+            async_course.querySelector(".section").textContent = section_data.number;
+            async_course.querySelector(".index").textContent = section_data.index;
+            async_course.querySelector(".status").textContent = section_data.status;
+
+            async_courses.appendChild(async_course);
+        }
     }
 
     hover_schedule_section(course_index, section_index) {
@@ -337,14 +378,14 @@ class Schedule {
         const day_intervals = {};
 
         for (const [course_index, section_index] of this.schedule_section.entries()) {
-            if (section_index == -1) {
+            if (section_index === -1) {
                 continue;
             }
             const course = this.courses[course_index];
             const section = course.sections[section_index];
 
             for (const section_class of section.meetings) {
-                if (section_class.start_time == null) {
+                if (section_class.start_time === null) {
                     continue;
                 }
 
@@ -375,7 +416,7 @@ class Schedule {
                 }
 
                 if (inserted != null) {
-                    interfering.add(cur[3] == inserted ? prev[3] : cur[3]);
+                    interfering.add(cur[3] === inserted ? prev[3] : cur[3]);
                 } else {
                     return true;
                 }

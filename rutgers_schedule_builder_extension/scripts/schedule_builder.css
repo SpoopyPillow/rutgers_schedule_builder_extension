@@ -75,3 +75,37 @@
     background-size: 20px 20px !important;
     background-position: 4px 4px !important;
 }
+
+.async_course {
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.async_course span {
+    display: inline-block;
+}
+
+.async_course .position {
+    width: 25px;
+}
+
+.async_course .title {
+    width: 250px;
+    text-transform: uppercase;
+}
+
+.async_course .code {
+    width: 150px;
+}
+
+.async_course .section {
+    width: 100px;
+}
+
+.async_course .index {
+    width: 100px;
+}
+
+.async_course .status {
+    width: 100px;
+}

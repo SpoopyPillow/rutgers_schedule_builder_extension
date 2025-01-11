@@ -7,17 +7,17 @@
 
 <template id="template_section_list">
     <ul class="section_list">
-        <li class="selected_section_wrapper">
+        <li class="selected_section">
             <div class="text_area">Selected Sections</div>
-            <div class="selected_section"></div>
+            <div class="selected_section_list"></div>
         </li>
-        <li class="possible_sections_wrapper">
+        <li class="possible_sections">
             <div class="text_area">Section Choices</div>
-            <div class="possible_sections"></div>
+            <div class="possible_sections_list"></div>
         </li>
-        <li class="overlapping_sections_wrapper">
+        <li class="overlapping_sections">
             <div class="text_area">Overlapping Sections</div>
-            <div class="overlapping_sections"></div>
+            <div class="overlapping_sections_list"></div>
         </li>
     </ul>
 </template>
@@ -25,5 +25,16 @@
 <template id="template_section">
     <div class="section">
         <span class="number"></span>
+    </div>
+</template>
+
+<template id="template_async_course">
+    <div class="async_course">
+        <span class="position"></span>
+        <span class="title"></span>
+        <span class="code"></span>
+        <span class="section"></span>
+        <span class="index"></span>
+        <span class="status"></span>
     </div>
 </template>
