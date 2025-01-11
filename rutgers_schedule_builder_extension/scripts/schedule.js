@@ -92,9 +92,7 @@ class Schedule {
         const template = (await load_template("template_section_list")).content.cloneNode(true);
         const section_list = template.querySelector(".section_list");
 
-        const selected_section = section_list.querySelector(".selected_section");
-        const possible_section = section_list.querySelector(".possible_section");
-        const overlap_section = section_list.querySelector(".overlap_section");
+        const possible_sections = section_list.querySelector(".possible_sections");
 
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
             if (!course_data.selected[section_index]) {
@@ -117,10 +115,11 @@ class Schedule {
                 this.unhover_schedule_section();
             };
 
-            possible_section.appendChild(section);
+            possible_sections.appendChild(section);
         }
 
         course.after(section_list);
+        this.sync_overlapping_sections(course_index);
         this.sync_selected_section(course_index);
     }
 
@@ -128,12 +127,17 @@ class Schedule {
         this.schedule_section[course_index] =
             this.schedule_section[course_index] === section_index ? -1 : section_index;
 
-        this.sync_selected_section(course_index);
-
-        for (const overlap_index of this.schedule_overlap(course_index)) {
+        const overlapping = this.schedule_overlap(course_index);
+        for (const overlap_index of overlapping) {
             this.schedule_section[overlap_index] = -1;
             this.remove_schedule_section(overlap_index);
         }
+
+        if (overlapping.size > 0) {
+            this.sync_overlapping_sections(course_index);
+        }
+        this.sync_selected_section(course_index);
+
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.schedule_section[course_index]);
     }
@@ -149,10 +153,27 @@ class Schedule {
             return;
         }
 
-        const section = schedule_sidebar.querySelector(".possible_section .section_" + section_index);
-        const clone = section.cloneNode(true);
-        clone.onclick = section.onclick;
-        selected_section.appendChild(clone);
+        const section = schedule_sidebar.querySelector(".possible_sections .section_" + section_index);
+        selected_section.appendChild(clone_with_sync(section));
+    }
+
+    sync_overlapping_sections(course_index) {
+        const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
+        const overlapping_sections = schedule_sidebar.querySelector(".overlapping_sections");
+
+        const course_data = this.courses[course_index];
+        for (let section_index = 0; section_index < course_data.sections.length; section_index++) {
+            const section = schedule_sidebar.querySelector(".possible_sections .section_" + section_index);
+
+            if (!this.schedule_overlap_with([[course_index, section_index]])) {
+                section.style.display = "";
+                remove_element(overlapping_sections.querySelector(".section_" + section_index));
+                continue;
+            }
+
+            overlapping_sections.appendChild(clone_with_sync(section));
+            section.style.display = "none";
+        }
     }
 
     load_schedule() {
@@ -232,16 +253,11 @@ class Schedule {
                 meeting.style.background = "none";
             });
 
-        const previous = this.schedule_section[course_index];
-
-        this.schedule_section[course_index] = section_index;
-        for (const overlap_index of this.schedule_overlap(course_index)) {
+        for (const overlap_index of this.schedule_overlap_with([[course_index, section_index]], course_index)) {
             schedule.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
                 meeting.classList.add("overlapping_section");
             });
         }
-
-        this.schedule_section[course_index] = previous;
     }
 
     unhover_schedule_section() {
@@ -326,7 +342,7 @@ class Schedule {
                 if (inserted != null) {
                     interfering.add(cur[3] == inserted ? prev[3] : cur[3]);
                 } else {
-                    return false;
+                    return true;
                 }
             }
         }
@@ -334,7 +350,17 @@ class Schedule {
         if (inserted != null) {
             return interfering;
         }
-        return true;
+        return false;
+    }
+
+    schedule_overlap_with(changes, inserted = null) {
+        const previous = [...this.schedule_section];
+        for (const [course_index, section_index] of changes) {
+            this.schedule_section[course_index] = section_index;
+        }
+        const output = this.schedule_overlap(inserted);
+        this.schedule_section = previous;
+        return output;
     }
 }
 

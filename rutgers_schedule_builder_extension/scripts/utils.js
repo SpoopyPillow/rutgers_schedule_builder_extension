@@ -6,6 +6,14 @@ async function load_template(template_id) {
     return template;
 }
 
+function clone_with_sync(element) {
+    const clone = element.cloneNode(true);
+    clone.onclick = element.onclick;
+    clone.onmouseenter = element.onmouseenter;
+    clone.onmouseleave = element.onmouseleave;
+    return clone;
+}
+
 function format_time(time) {
     const [hours, minutes, period] = time.match(/(\d+):(\d+) (\w+)/).slice(1);
     let militaryHours = parseInt(hours);
