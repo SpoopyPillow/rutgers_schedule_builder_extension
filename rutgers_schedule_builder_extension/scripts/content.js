@@ -43,17 +43,19 @@ function remove_original_meetings() {
 function extract_selected_courses() {
     schedule_data = new Schedule();
 
-    const section_select = document.getElementById("SectionSelectID");
+    const courses = document.querySelectorAll("#SectionSelectID .course");
+    const courses_sidebar = document.querySelectorAll("#selected-courses tr");
+    for (let course_index = 0; course_index < courses.length; course_index++) {
+        const course = courses[course_index];
+        const course_sidebar = courses_sidebar[course_index];
 
-    const courses = section_select.querySelectorAll(".course");
-    for (const course of courses) {
         const course_data = new Course(
             course.querySelector(".number .unit-code").textContent +
                 ":" +
                 course.querySelector(".number .subject").textContent +
                 ":" +
                 course.querySelector(".number .number").textContent,
-            course.querySelector(".title").textContent
+            course_sidebar.querySelector(".course-title").textContent
         );
 
         const sections = course.querySelectorAll('tr[dojoattachpoint="sectionMainArea"]');

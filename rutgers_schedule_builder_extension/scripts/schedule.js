@@ -168,6 +168,10 @@ class Schedule {
 
         const section_index = this.schedule_section[course_index];
         if (section_index === -1) {
+            const placeholder = document.createElement("div");
+            placeholder.className = "placeholder";
+            placeholder.textContent = "No section selected";
+            selected_section.appendChild(placeholder);
             return;
         }
 
@@ -191,6 +195,10 @@ class Schedule {
 
             overlapping_sections.appendChild(clone_with_sync(section));
             section.style.display = "none";
+        }
+
+        if (overlapping_sections.childElementCount === 0) {
+            remove_element(overlapping_sections.parentElement);
         }
     }
 

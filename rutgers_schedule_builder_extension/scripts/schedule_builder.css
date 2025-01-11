@@ -1,3 +1,52 @@
+.course {
+    background: transparent;
+    border: 1px solid;
+    border-color: #ffd #ffd #fea #ffd;
+    padding-right: 2px;
+}
+
+.course span {
+    text-align: left;
+    padding: 3px;
+    vertical-align: middle;
+}
+
+.course .code {
+    display: inline-block;
+    font: 400 normal 12px monospace;
+    color: #555;
+}
+
+.course .title {
+    display: inline-block;
+    font-weight: 900;
+    color: #000;
+    text-transform: uppercase;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 5px 0px 5px 0px;
+}
+
+.section_list li {
+    list-style: none;
+    padding: 0;
+    line-height: 1.5;
+}
+
+.section_list .text_area {
+    position: relative;
+    font-size: 10px;
+    padding: 0;
+    margin: 0;
+    border-bottom-color: #ffd;
+    font-weight: bold;
+}
+
+.section span {
+    font-weight: normal;
+    font-family: verdana;
+}
+
 .schedule_meeting {
     position: absolute;
     width: 100%;
