@@ -9,10 +9,14 @@
     text-align: left;
     padding: 3px;
     vertical-align: middle;
+    font: 400 11px Arial, sans-serif;
+    padding: 3px;
+    vertical-align: middle;
 }
 
 .course .code {
     display: inline-block;
+    width: 6em;
     font: 400 normal 12px monospace;
     color: #555;
 }
@@ -30,6 +34,7 @@
 .section_list li {
     list-style: none;
     padding: 0;
+    padding-bottom: 1em;
     line-height: 1.5;
 }
 
