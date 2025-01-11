@@ -68,10 +68,12 @@ function extract_selected_courses() {
 
             const meetings = section.querySelectorAll('tr[id^="csp_view_domain_Meeting_"]');
             for (const meeting of meetings) {
+                let time = meeting.querySelector(".time").textContent;
+
                 const meeting_data = new Meeting(
-                    meeting.querySelector(".weekday").textContent.toLowerCase(),
-                    format_time(meeting.querySelector(".time").textContent.split("-")[0]),
-                    format_time(meeting.querySelector(".time").textContent.split("-")[1]),
+                    meeting.querySelector(".weekday").textContent,
+                    time === "" ? null : format_time(time.split("-")[0]),
+                    time === "" ? null : format_time(time.split("-")[1]),
                     meeting.querySelector(".location3").textContent.toLowerCase(),
                     meeting.querySelector(".location").textContent
                 );

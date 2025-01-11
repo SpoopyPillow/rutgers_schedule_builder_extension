@@ -228,6 +228,11 @@ class Schedule {
         const section_data = course_data.sections[section_index];
 
         for (const meeting_data of section_data.meetings) {
+            if (meeting_data.start_time === null) {
+                // TODO UPDATE ASYNCHRONOUS COURSE LIST
+                continue;
+            }
+
             const meeting = document.createElement("div");
             meeting.className = [
                 "schedule_meeting",
