@@ -78,12 +78,14 @@ class Schedule {
     toggle_section_list(course, course_index) {
         const course_data = this.courses[course_index];
 
+        this.unfocus_schedule_course();
         remove_element(course.parentElement.querySelector(".section_list"));
 
         if (course.classList.contains("focused_course")) {
             course.classList.remove("focused_course");
             return;
         }
+        this.focus_schedule_course(course_index);
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
@@ -144,55 +146,6 @@ class Schedule {
         }
     }
 
-    hover_schedule_section(course_index, section_index) {
-        if (this.schedule_section[course_index] === section_index) {
-            return;
-        }
-
-        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
-
-        schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
-            meeting.classList.add("unfocused_section");
-        });
-
-        this.load_schedule_section(course_index, section_index);
-        schedule
-            .querySelectorAll(".schedule_meeting.course_" + course_index + ":not(.unfocused_section)")
-            .forEach((meeting) => {
-                meeting.classList.add("focused_section");
-                meeting.style.boxShadow =
-                    "0px 0px 0px 7px " + window.getComputedStyle(meeting).backgroundColor + " inset";
-                meeting.style.background = "none";
-            });
-
-        const previous = this.schedule_section[course_index];
-
-        this.schedule_section[course_index] = section_index;
-        for (const overlap_index of this.schedule_overlap(course_index)) {
-            schedule.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
-                meeting.classList.add("overlapping_section");
-            });
-        }
-
-        this.schedule_section[course_index] = previous;
-    }
-
-    unhover_schedule_section() {
-        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
-
-        schedule.querySelectorAll(".focused_section").forEach((meeting) => {
-            remove_element(meeting);
-        });
-
-        schedule.querySelectorAll(".unfocused_section").forEach((meeting) => {
-            meeting.classList.remove("unfocused_section");
-        });
-
-        schedule.querySelectorAll(".overlapping_section").forEach((meeting) => {
-            meeting.classList.remove("overlapping_section");
-        });
-    }
-
     load_schedule_section(course_index, section_index) {
         if (section_index === -1) {
             return;
@@ -233,6 +186,77 @@ class Schedule {
         schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
             remove_element(meeting);
         });
+    }
+
+    hover_schedule_section(course_index, section_index) {
+        if (this.schedule_section[course_index] === section_index) {
+            return;
+        }
+
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
+            meeting.classList.add("schedule_unfocused_section");
+        });
+
+        this.load_schedule_section(course_index, section_index);
+        schedule
+            .querySelectorAll(".schedule_meeting.course_" + course_index + ":not(.schedule_unfocused_section)")
+            .forEach((meeting) => {
+                meeting.classList.add("schedule_focused_section");
+                meeting.style.boxShadow =
+                    "0px 0px 0px 7px " + window.getComputedStyle(meeting).backgroundColor + " inset";
+                meeting.style.background = "none";
+            });
+
+        const previous = this.schedule_section[course_index];
+
+        this.schedule_section[course_index] = section_index;
+        for (const overlap_index of this.schedule_overlap(course_index)) {
+            schedule.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
+                meeting.classList.add("overlapping_section");
+            });
+        }
+
+        this.schedule_section[course_index] = previous;
+    }
+
+    unhover_schedule_section() {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        schedule.querySelectorAll(".schedule_focused_section").forEach((meeting) => {
+            remove_element(meeting);
+        });
+
+        schedule.querySelectorAll(".schedule_unfocused_section").forEach((meeting) => {
+            meeting.classList.remove("schedule_unfocused_section");
+        });
+
+        schedule.querySelectorAll(".overlapping_section").forEach((meeting) => {
+            meeting.classList.remove("overlapping_section");
+        });
+    }
+
+    focus_schedule_course(course_index) {
+        if (course_index === -1) {
+            return;
+        }
+
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        for (const meeting of schedule.querySelectorAll(".schedule_meeting")) {
+            if (!meeting.classList.contains("course_" + course_index)) {
+                meeting.classList.add("schedule_unfocused_course");
+            }
+        }
+    }
+
+    unfocus_schedule_course() {
+        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+
+        for (const meeting of schedule.querySelectorAll(".schedule_unfocused_course")) {
+            meeting.classList.remove("schedule_unfocused_course");
+        }
     }
 
     schedule_overlap(inserted = null) {
