@@ -408,6 +408,10 @@ class Schedule {
         const clone = course.cloneNode(true);
         course.classList.add("async_unfocused_section");
 
+        for (const overlap_index of this.schedule_overlap_with([[course_index, section_index]], course_index)) {
+            async_courses.querySelector(".course_" + overlap_index).classList.add("async_overlapping_section");
+        }
+
         if (
             !section_data.meetings.map((meeting) => meeting.start_time).some((start_time) => start_time === null)
         ) {
@@ -415,6 +419,7 @@ class Schedule {
         }
 
         clone.classList.add("async_focused_section");
+        clone.querySelector(".position").textContent = "";
         clone.querySelector(".section").textContent = section_data.number;
         clone.querySelector(".index").textContent = section_data.index;
         clone.querySelector(".status").textContent = section_data.status;
@@ -427,6 +432,7 @@ class Schedule {
         const async_courses = document.getElementById("byArrangementCoursesDiv");
         remove_element(async_courses.querySelector(".async_focused_section"));
         async_courses.querySelector(".async_unfocused_section")?.classList.remove("async_unfocused_section");
+        async_courses.querySelector(".async_overlapping_section")?.classList.remove("async_overlapping_section");
     }
 
     focus_async_course(course_index) {

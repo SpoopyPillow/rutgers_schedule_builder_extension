@@ -121,3 +121,7 @@
 .async_course.async_unfocused_section {
     background: linear-gradient(to bottom, transparent 45%, black 50%, transparent 55%);
 }
+
+.async_course.async_overlapping_section {
+    background: linear-gradient(to bottom, transparent 45%, black 50%, transparent 55%);
+}
