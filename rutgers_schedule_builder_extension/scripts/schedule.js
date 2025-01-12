@@ -18,11 +18,15 @@ class Schedule {
         downtown: 5,
         camden: 6,
         newark: 7,
+        online: "O",
     };
 
-    constructor() {
+    constructor(year, term, student_id) {
         this.courses = new Array();
         this.schedule_section = new Array();
+        this.term = term;
+        this.year = year;
+        this.student_id = student_id;
     }
 
     static day_to_num(day) {
@@ -509,6 +513,34 @@ class Schedule {
         const output = this.schedule_overlap(inserted);
         this.schedule_section = previous;
         return output;
+    }
+
+    fetch_save_schedule() {
+        const schedule_builder = document.getElementById("CSPBuildScheduleTab");
+        const label = schedule_builder.querySelector('div[dojoattachpoint="noMessage"] input').value;
+
+        const indicies = new Array();
+        for (const [course_index, course] of this.courses.entries()) {
+            const section_index = this.schedule_section[course_index];
+            if (section_index === -1) {
+                continue;
+            }
+            indicies.push(course.sections[section_index].index);
+        }
+
+        fetch("saveSchedule.json", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                term: this.term,
+                year: this.year,
+                label: label,
+                sections: indicies,
+                studentId: this.student_id,
+            }),
+        });
     }
 }
 

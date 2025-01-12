@@ -3,6 +3,7 @@ function restructure_original() {
     tab_link.addEventListener("click", update_schedule_builder);
 
     structure_sidebar();
+    alter_page();
     update_schedule_builder();
 }
 
@@ -26,6 +27,28 @@ function structure_sidebar() {
     schedule_builder.prepend(sidebar);
 }
 
+function alter_page() {
+    const schedule_builder = document.getElementById("CSPBuildScheduleTab");
+    remove_element(schedule_builder.querySelector("#ViewControlID"));
+
+    const control_area = schedule_builder.querySelector('div[dojoattachpoint="noMessage"]');
+    remove_children(control_area);
+
+    const schedule_name = document.createElement("input");
+    schedule_name.type = "text";
+    schedule_name.placeholder = "Schedule Name";
+    schedule_name.style.margin = "3px";
+    control_area.appendChild(schedule_name);
+
+    const save_button = document.createElement("button");
+    save_button.textContent = "Submit"
+    save_button.style.margin = "3px";
+    save_button.onclick = (event) => {
+        schedule_data.fetch_save_schedule();
+    };
+    control_area.appendChild(save_button);
+}
+
 function update_schedule_builder() {
     remove_original_meetings();
     extract_selected_courses();
@@ -43,7 +66,12 @@ function remove_original_meetings() {
 }
 
 function extract_selected_courses() {
-    schedule_data = new Schedule();
+    const script = document.querySelector("script").innerHTML;
+    schedule_data = new Schedule(
+        script.match(/"yearterm":"(\d+)"/)[1].slice(0, 4),
+        script.match(/"yearterm":"(\d+)"/)[1].slice(4, 5),
+        script.match(/"studentId":"(\d+)"/)[1]
+    );
 
     const courses = document.querySelectorAll("#SectionSelectID .course");
     const courses_sidebar = document.querySelectorAll("#selected-courses tr");
