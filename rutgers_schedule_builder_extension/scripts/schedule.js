@@ -78,12 +78,14 @@ class Schedule {
             course.onmouseenter = (event) => {
                 if (schedule_sidebar.querySelector(".focused_course") == null) {
                     this.focus_schedule_course(course_index);
+                    this.focus_async_course(course_index);
                 }
             };
 
             course.onmouseleave = (event) => {
                 if (schedule_sidebar.querySelector(".focused_course") == null) {
                     this.unfocus_schedule_course();
+                    this.unfocus_async_course();
                 }
             };
 
@@ -97,6 +99,7 @@ class Schedule {
         const course_data = this.courses[course_index];
 
         this.unfocus_schedule_course();
+        this.unfocus_async_course();
         remove_element(course.parentElement.querySelector(".section_list"));
 
         if (course.classList.contains("focused_course")) {
@@ -104,6 +107,7 @@ class Schedule {
             return;
         }
         this.focus_schedule_course(course_index);
+        this.focus_async_course(course_index);
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
@@ -273,77 +277,6 @@ class Schedule {
         });
     }
 
-    async initialize_async_courses() {
-        const async_courses = document.getElementById("byArrangementCoursesDiv");
-        const template = await load_template("template_async_course");
-
-        for (let course_index = 0; course_index < this.courses.length; course_index++) {
-            const template_clone = template.content.cloneNode(true);
-            const async_course = template_clone.querySelector(".async_course");
-            async_course.classList.add("course_" + course_index);
-            async_course.style.display = "none";
-            async_courses.appendChild(async_course);
-        }
-    }
-
-    load_async_courses() {
-        const async_courses = document.getElementById("byArrangementCoursesDiv");
-
-        let position = 0;
-        for (const [course_index, section_index] of this.schedule_section.entries()) {
-            const async_course = async_courses.querySelector(".course_" + course_index);
-            async_course.className = "async_course course_" + course_index;
-
-            if (section_index === -1) {
-                async_course.style.display = "none";
-                continue;
-            }
-
-            const course_data = this.courses[course_index];
-            const section_data = course_data.sections[section_index];
-
-            if (
-                !section_data.meetings
-                    .map((meeting) => meeting.start_time)
-                    .some((start_time) => start_time === null)
-            ) {
-                async_course.style.display = "none";
-                continue;
-            }
-            position += 1;
-
-            async_course.querySelector(".position").textContent = "[" + position + "]";
-            async_course.querySelector(".title").textContent = course_data.title;
-            async_course.querySelector(".code").textContent = course_data.code;
-            async_course.querySelector(".section").textContent = section_data.number;
-            async_course.querySelector(".index").textContent = section_data.index;
-            async_course.querySelector(".status").textContent = section_data.status;
-
-            async_course.style.display = "";
-        }
-    }
-
-    hover_async_section(course_index, section_index) {
-        if (this.schedule_section[course_index] === section_index) {
-            return;
-        }
-
-        const previous = this.schedule_section[course_index];
-        this.schedule_section[course_index] = section_index;
-        this.load_async_courses();
-        this.schedule_section[course_index] = previous;
-
-        const async_courses = document.getElementById("byArrangementCoursesDiv");
-        const course = async_courses.querySelector(".course_" + course_index);
-
-        const course_data = this.courses[course_index];
-        const section_data = course_data.sections[section_index];
-
-        course.classList.add("async_focused_section");
-        course.querySelector(".section").textContent = section_data.number;
-        course.querySelector(".index").textContent = section_data.index;
-    }
-
     hover_schedule_section(course_index, section_index) {
         if (this.schedule_section[course_index] === section_index) {
             return;
@@ -408,6 +341,103 @@ class Schedule {
         for (const meeting of schedule.querySelectorAll(".schedule_unfocused_course")) {
             meeting.classList.remove("schedule_unfocused_course");
         }
+    }
+
+    async initialize_async_courses() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        const template = await load_template("template_async_course");
+
+        for (let course_index = 0; course_index < this.courses.length; course_index++) {
+            const course_data = this.courses[course_index];
+
+            const template_clone = template.content.cloneNode(true);
+            const async_course = template_clone.querySelector(".async_course");
+            async_course.classList.add("course_" + course_index);
+            async_course.querySelector(".title").textContent = course_data.title;
+            async_course.querySelector(".code").textContent = course_data.code;
+            async_course.style.display = "none";
+            async_courses.appendChild(async_course);
+        }
+    }
+
+    load_async_courses() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        this.clean_hover_async_section();
+
+        let position = 0;
+        for (const [course_index, section_index] of this.schedule_section.entries()) {
+            const async_course = async_courses.querySelector(".course_" + course_index);
+
+            if (section_index === -1) {
+                async_course.style.display = "none";
+                continue;
+            }
+
+            const course_data = this.courses[course_index];
+            const section_data = course_data.sections[section_index];
+
+            if (
+                !section_data.meetings
+                    .map((meeting) => meeting.start_time)
+                    .some((start_time) => start_time === null)
+            ) {
+                async_course.style.display = "none";
+                continue;
+            }
+            position += 1;
+
+            async_course.querySelector(".position").textContent = "[" + position + "]";
+            async_course.querySelector(".section").textContent = section_data.number;
+            async_course.querySelector(".index").textContent = section_data.index;
+            async_course.querySelector(".status").textContent = section_data.status;
+
+            async_course.style.display = "";
+        }
+    }
+
+    hover_async_section(course_index, section_index) {
+        if (this.schedule_section[course_index] === section_index) {
+            return;
+        }
+
+        const course_data = this.courses[course_index];
+        const section_data = course_data.sections[section_index];
+
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        const course = async_courses.querySelector(".course_" + course_index);
+        const clone = course.cloneNode(true);
+        course.classList.add("async_unfocused_section");
+
+        if (
+            !section_data.meetings.map((meeting) => meeting.start_time).some((start_time) => start_time === null)
+        ) {
+            return;
+        }
+
+        clone.classList.add("async_focused_section");
+        clone.querySelector(".section").textContent = section_data.number;
+        clone.querySelector(".index").textContent = section_data.index;
+        clone.querySelector(".status").textContent = section_data.status;
+        clone.style.display = "";
+
+        course.after(clone);
+    }
+
+    clean_hover_async_section() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        remove_element(async_courses.querySelector(".async_focused_section"));
+        async_courses.querySelector(".async_unfocused_section")?.classList.remove("async_unfocused_section");
+    }
+
+    focus_async_course(course_index) {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        const course = async_courses.querySelector(".course_" + course_index);
+        course.classList.add("async_focused_course");
+    }
+
+    unfocus_async_course() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        async_courses.querySelector(".async_focused_course")?.classList.remove("async_focused_course");
     }
 
     schedule_overlap(inserted = null) {

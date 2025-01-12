@@ -110,6 +110,14 @@
     width: 100px;
 }
 
+.async_course.async_focused_course {
+    background-color: #ffd;
+}
+
 .async_course.async_focused_section {
-    opacity: 0.5;
+    opacity: 0.75;
+}
+
+.async_course.async_unfocused_section {
+    background: linear-gradient(to bottom, transparent 45%, black 50%, transparent 55%);
 }
