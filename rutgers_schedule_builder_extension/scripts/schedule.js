@@ -56,7 +56,6 @@ class Schedule {
         this.schedule_section.push(selected);
     }
 
-    // TODO Fix bug when loading back on
     async load_course_list() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
         const template = await load_template("template_course");
@@ -90,6 +89,8 @@ class Schedule {
 
             schedule_sidebar.appendChild(template_clone);
         }
+
+        this.initialize_async_courses();
     }
 
     async toggle_section_list(course, course_index) {
@@ -126,14 +127,17 @@ class Schedule {
 
             section.onclick = (event) => {
                 this.toggle_select_schedule_section(course_index, section_index);
+                this.load_async_courses();
             };
 
             section.onmouseenter = (event) => {
                 this.hover_schedule_section(course_index, section_index);
+                this.hover_async_section(course_index, section_index);
             };
 
             section.onmouseleave = (event) => {
                 this.unhover_schedule_section();
+                this.load_async_courses();
             };
 
             possible_sections.appendChild(template_section_clone);
@@ -161,7 +165,6 @@ class Schedule {
 
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.schedule_section[course_index]);
-        this.load_async_courses();
     }
 
     sync_selected_section(course_index) {
@@ -270,15 +273,29 @@ class Schedule {
         });
     }
 
-    async load_async_courses() {
+    async initialize_async_courses() {
         const async_courses = document.getElementById("byArrangementCoursesDiv");
         const template = await load_template("template_async_course");
 
-        remove_children(async_courses);
+        for (let course_index = 0; course_index < this.courses.length; course_index++) {
+            const template_clone = template.content.cloneNode(true);
+            const async_course = template_clone.querySelector(".async_course");
+            async_course.classList.add("course_" + course_index);
+            async_course.style.display = "none";
+            async_courses.appendChild(async_course);
+        }
+    }
+
+    load_async_courses() {
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
 
         let position = 0;
         for (const [course_index, section_index] of this.schedule_section.entries()) {
+            const async_course = async_courses.querySelector(".course_" + course_index);
+            async_course.className = "async_course course_" + course_index;
+
             if (section_index === -1) {
+                async_course.style.display = "none";
                 continue;
             }
 
@@ -290,12 +307,10 @@ class Schedule {
                     .map((meeting) => meeting.start_time)
                     .some((start_time) => start_time === null)
             ) {
+                async_course.style.display = "none";
                 continue;
             }
             position += 1;
-
-            const template_clone = template.content.cloneNode(true);
-            const async_course = template_clone.querySelector(".async_course");
 
             async_course.querySelector(".position").textContent = "[" + position + "]";
             async_course.querySelector(".title").textContent = course_data.title;
@@ -304,8 +319,29 @@ class Schedule {
             async_course.querySelector(".index").textContent = section_data.index;
             async_course.querySelector(".status").textContent = section_data.status;
 
-            async_courses.appendChild(async_course);
+            async_course.style.display = "";
         }
+    }
+
+    hover_async_section(course_index, section_index) {
+        if (this.schedule_section[course_index] === section_index) {
+            return;
+        }
+
+        const previous = this.schedule_section[course_index];
+        this.schedule_section[course_index] = section_index;
+        this.load_async_courses();
+        this.schedule_section[course_index] = previous;
+
+        const async_courses = document.getElementById("byArrangementCoursesDiv");
+        const course = async_courses.querySelector(".course_" + course_index);
+
+        const course_data = this.courses[course_index];
+        const section_data = course_data.sections[section_index];
+
+        course.classList.add("async_focused_section");
+        course.querySelector(".section").textContent = section_data.number;
+        course.querySelector(".index").textContent = section_data.index;
     }
 
     hover_schedule_section(course_index, section_index) {

@@ -109,3 +109,7 @@
 .async_course .status {
     width: 100px;
 }
+
+.async_course.async_focused_section {
+    opacity: 0.5;
+}

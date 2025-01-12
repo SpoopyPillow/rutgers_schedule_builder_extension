@@ -89,6 +89,7 @@ function extract_selected_courses() {
         schedule_data.append_course(course_data);
     }
 
+    schedule_data.load_schedule();
     console.log(schedule_data);
 }
 
