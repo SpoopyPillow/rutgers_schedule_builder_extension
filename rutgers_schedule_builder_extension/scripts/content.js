@@ -41,12 +41,20 @@ function alter_page() {
     control_area.appendChild(schedule_name);
 
     const save_button = document.createElement("button");
-    save_button.textContent = "Submit";
+    save_button.textContent = "Save";
     save_button.style.margin = "3px";
     save_button.onclick = (event) => {
         schedule_data.fetch_save_schedule();
     };
     control_area.appendChild(save_button);
+
+    const info = document.createElement("span");
+    info.textContent = "*Reload page to see recently saved schedules";
+    control_area.appendChild(info);
+
+    for (const element of document.querySelectorAll(".box-button-controls")) {
+        remove_element(element);
+    }
 }
 
 function update_schedule_builder() {
