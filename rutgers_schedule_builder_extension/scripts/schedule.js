@@ -295,7 +295,7 @@ class Schedule {
     }
 
     async hover_schedule_meeting(meeting, course_data, section_data, meeting_data) {
-        const schedule = document.querySelector("#CSPBuildScheduleTab");
+        const body = document.querySelector("body");
 
         const template = await load_template("template_popup");
         const template_clone = template.content.cloneNode(true);
@@ -316,16 +316,16 @@ class Schedule {
             `<br><b>Status:</b>\t${section_data.status}` +
             `<br><b>Location:</b>\t${meeting_data.location + " " + meeting_data.campus.toUpperCase()}`;
 
-        schedule.appendChild(popup);
+        body.appendChild(popup);
         const meeting_rect = meeting.getBoundingClientRect();
 
-        popup.style.top = meeting_rect.top - 125 - popup.offsetHeight + "px";
+        popup.style.top = meeting_rect.top - popup.offsetHeight - 15 + "px";
         popup.style.left = meeting_rect.left + "px";
     }
 
     unhover_schedule_meeting() {
-        const schedule = document.querySelector("#CSPBuildScheduleTab");
-        schedule.querySelectorAll(".popup").forEach((element) => remove_element(element));
+        const body = document.querySelector("body");
+        body.querySelectorAll(".popup").forEach((element) => remove_element(element));
     }
 
     hover_schedule_section(course_index, section_index) {

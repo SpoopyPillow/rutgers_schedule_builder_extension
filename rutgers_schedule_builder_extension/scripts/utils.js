@@ -28,13 +28,16 @@ function standard_to_military_time(time) {
 }
 
 function military_to_standard_time(time) {
-    const [hours, minutes] = time.split(":").map(Number);
-    const period = hours < 12 ? "am" : "pm";
-    const standardHours = hours === 0 ? 12 : hours % 12;
-    const standardTime = `${standardHours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")} ${period}`;
-    return standardTime;
+    let [hours, minutes] = time.split(":").map((value) => parseInt(value));
+    const period = hours >= 12 ? "pm" : "am";
+
+    if (hours > 12) {
+        hours -= 12;
+    } else if (hours === 0) {
+        hours = 12;
+    }
+
+    return hours + ":" + minutes.toString().padStart(2, "0") + " " + period;
 }
 
 function to_minutes(time) {
