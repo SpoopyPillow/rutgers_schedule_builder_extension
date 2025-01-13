@@ -61,6 +61,8 @@ function update_schedule_builder() {
     remove_original_meetings();
     extract_selected_courses();
     schedule_data.load_course_list();
+    schedule_data.load_schedule();
+    console.log(schedule_data);
 }
 
 function remove_original_meetings() {
@@ -124,9 +126,6 @@ function extract_selected_courses() {
 
         schedule_data.append_course(course_data);
     }
-
-    schedule_data.load_schedule();
-    console.log(schedule_data);
 }
 
 async function inject_content() {

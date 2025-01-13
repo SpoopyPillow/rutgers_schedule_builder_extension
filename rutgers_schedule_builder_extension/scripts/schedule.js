@@ -394,21 +394,62 @@ class Schedule {
         }
     }
 
+    async create_async_course(position, title, code, section, index, status) {
+        const template = await load_template("template_async_course");
+        const template_clone = template.content.cloneNode(true);
+        const async_course = template_clone.querySelector(".async_course");
+
+        async_course.querySelector(".position").textContent = position;
+        async_course.querySelector(".title").textContent = title;
+        async_course.querySelector(".code").textContent = code;
+        async_course.querySelector(".section").textContent = section;
+        async_course.querySelector(".index").textContent = index;
+        async_course.querySelector(".status").textContent = status;
+
+        return async_course;
+    }
+
+    correct_async_course_visibility() {
+        const async_list = document.getElementById("byArrangementCoursesDiv");
+        const async_courses = async_list.querySelectorAll(".async_course:not(.header)");
+        
+        if ([...async_courses].some((element) => element.style.display != "none")) {
+            async_list.style.display = "";
+        }
+        else {
+            async_list.style.display = "none";
+        }
+    }
+
     async initialize_async_courses() {
         const async_courses = document.getElementById("byArrangementCoursesDiv");
-        const template = await load_template("template_async_course");
+
+        const text = document.createElement("div");
+        text.className = "async_text_area";
+        text.textContent = "By arrangement courses:";
+        async_courses.appendChild(text);
+
+        const header = await this.create_async_course("", "title", "code", "section", "index", "status");
+        header.classList.add("header");
+        async_courses.appendChild(header);
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
             const course_data = this.courses[course_index];
 
-            const template_clone = template.content.cloneNode(true);
-            const async_course = template_clone.querySelector(".async_course");
+            const async_course = await this.create_async_course(
+                "",
+                course_data.title,
+                course_data.code,
+                "",
+                "",
+                ""
+            );
             async_course.classList.add("course_" + course_index);
-            async_course.querySelector(".title").textContent = course_data.title;
-            async_course.querySelector(".code").textContent = course_data.code;
             async_course.style.display = "none";
             async_courses.appendChild(async_course);
         }
+
+        this.correct_async_course_visibility();
     }
 
     load_async_courses() {
@@ -444,6 +485,8 @@ class Schedule {
 
             async_course.style.display = "";
         }
+
+        this.correct_async_course_visibility();
     }
 
     hover_async_section(course_index, section_index) {
@@ -477,6 +520,7 @@ class Schedule {
         clone.style.display = "";
 
         course.after(clone);
+        this.correct_async_course_visibility();
     }
 
     clean_hover_async_section() {
