@@ -41,7 +41,7 @@ function alter_page() {
     control_area.appendChild(schedule_name);
 
     const save_button = document.createElement("button");
-    save_button.textContent = "Submit"
+    save_button.textContent = "Submit";
     save_button.style.margin = "3px";
     save_button.onclick = (event) => {
         schedule_data.fetch_save_schedule();
@@ -102,8 +102,8 @@ function extract_selected_courses() {
 
                 const meeting_data = new Meeting(
                     meeting.querySelector(".weekday").textContent,
-                    time === "" ? null : format_time(time.split("-")[0]),
-                    time === "" ? null : format_time(time.split("-")[1]),
+                    time === "" ? null : standard_to_military_time(time.split("-")[0]),
+                    time === "" ? null : standard_to_military_time(time.split("-")[1]),
                     meeting.querySelector(".location3").textContent.toLowerCase(),
                     meeting.querySelector(".location").textContent
                 );

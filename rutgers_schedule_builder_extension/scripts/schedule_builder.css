@@ -55,6 +55,33 @@
 .schedule_meeting {
     position: absolute;
     width: 100%;
+    text-transform: uppercase;
+}
+
+.schedule_meeting .course_title {
+    font-size: 9px;
+    padding: 2px;
+}
+
+.popup {
+    position: absolute;
+    z-index: 2000;
+}
+
+.popup_information {
+    font: 400 11px/18px Arial, sans-serif;
+    color: #555;
+    max-width: 400px;
+    background: #ffffff url(images/popupMenuBg.gif) repeat-x bottom left;
+    border: 1px solid #7eabcd;
+    padding: 0.45em;
+}
+
+.popup_information b {
+    font-weight: 400;
+    color: #999;
+    display: inline-block;
+    width: 5em;
 }
 
 .schedule_unfocused_course {

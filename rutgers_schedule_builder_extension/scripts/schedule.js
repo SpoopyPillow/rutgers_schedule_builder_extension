@@ -269,6 +269,19 @@ class Schedule {
             meeting.style.top = start_pos + "%";
             meeting.style.height = end_pos - start_pos + "%";
 
+            const course_title = document.createElement("span");
+            course_title.className = "course_title";
+            course_title.textContent = course_data.title;
+            meeting.appendChild(course_title);
+
+            meeting.onmouseenter = (event) => {
+                this.hover_schedule_meeting(meeting, course_data, section_data, meeting_data);
+            };
+
+            meeting.onmouseleave = (event) => {
+                this.unhover_schedule_meeting();
+            };
+
             day_columns[Schedule.day_to_num(meeting_data.day)].appendChild(meeting);
         }
     }
@@ -279,6 +292,40 @@ class Schedule {
         schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
             remove_element(meeting);
         });
+    }
+
+    async hover_schedule_meeting(meeting, course_data, section_data, meeting_data) {
+        const schedule = document.querySelector("#CSPBuildScheduleTab");
+
+        const template = await load_template("template_popup");
+        const template_clone = template.content.cloneNode(true);
+        const popup = template_clone.querySelector(".popup");
+        const popup_info = popup.querySelector(".popup_information");
+        popup_info.className += " dijitTooltipContainer dijitTooltipContents";
+
+        popup_info.innerHTML =
+            `${course_data.title.toUpperCase()}` +
+            `<br><b>Course:</b>\t${course_data.code}` +
+            `<br><b>Section:</b>\t${section_data.number}` +
+            `<br><b>Index:</b>\t${section_data.index}` +
+            `<br><b>Time:</b>\t${
+                military_to_standard_time(meeting_data.start_time) +
+                "-" +
+                military_to_standard_time(meeting_data.end_time)
+            }` +
+            `<br><b>Status:</b>\t${section_data.status}` +
+            `<br><b>Location:</b>\t${meeting_data.location + " " + meeting_data.campus.toUpperCase()}`;
+
+        schedule.appendChild(popup);
+        const meeting_rect = meeting.getBoundingClientRect();
+
+        popup.style.top = meeting_rect.top - 125 - popup.offsetHeight + "px";
+        popup.style.left = meeting_rect.left + "px";
+    }
+
+    unhover_schedule_meeting() {
+        const schedule = document.querySelector("#CSPBuildScheduleTab");
+        schedule.querySelectorAll(".popup").forEach((element) => remove_element(element));
     }
 
     hover_schedule_section(course_index, section_index) {

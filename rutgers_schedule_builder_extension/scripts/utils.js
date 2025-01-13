@@ -14,7 +14,7 @@ function clone_with_sync(element) {
     return clone;
 }
 
-function format_time(time) {
+function standard_to_military_time(time) {
     const [hours, minutes, period] = time.match(/(\d+):(\d+) (\w+)/).slice(1);
     let militaryHours = parseInt(hours);
 
@@ -25,6 +25,16 @@ function format_time(time) {
     }
 
     return militaryHours + ":" + minutes;
+}
+
+function military_to_standard_time(time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    const period = hours < 12 ? "am" : "pm";
+    const standardHours = hours === 0 ? 12 : hours % 12;
+    const standardTime = `${standardHours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")} ${period}`;
+    return standardTime;
 }
 
 function to_minutes(time) {
