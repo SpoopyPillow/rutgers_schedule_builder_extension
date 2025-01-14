@@ -80,6 +80,7 @@ class Schedule {
             };
 
             course.onmouseenter = (event) => {
+                course.classList.add("hovered_course");
                 if (schedule_sidebar.querySelector(".focused_course") == null) {
                     this.focus_schedule_course(course_index);
                     this.focus_async_course(course_index);
@@ -87,6 +88,7 @@ class Schedule {
             };
 
             course.onmouseleave = (event) => {
+                course.classList.remove("hovered_course");
                 if (schedule_sidebar.querySelector(".focused_course") == null) {
                     this.unfocus_schedule_course();
                     this.unfocus_async_course();
@@ -180,6 +182,9 @@ class Schedule {
         const selected_section = schedule_sidebar.querySelector(".selected_section_list");
 
         remove_children(selected_section);
+        schedule_sidebar.querySelectorAll(".selected_section").forEach((element) => {
+            element.classList.remove("selected_section");
+        })
 
         const section_index = this.schedule_section[course_index];
         if (section_index === -1) {
@@ -191,7 +196,9 @@ class Schedule {
         }
 
         const section = schedule_sidebar.querySelector(".possible_sections_list .section_" + section_index);
-        selected_section.appendChild(clone_with_sync(section));
+        const clone = clone_with_sync(section);
+        section.classList.add("selected_section");
+        selected_section.appendChild(clone);
     }
 
     sync_overlapping_sections(course_index) {
@@ -329,18 +336,23 @@ class Schedule {
     }
 
     hover_schedule_section(course_index, section_index) {
+        const schedule = document.querySelector("#CSPBuildScheduleTab");
+        schedule.querySelectorAll(".section_" + section_index).forEach((element) => {
+            element.classList.add("hovered_section");
+        });
+
         if (this.schedule_section[course_index] === section_index) {
             return;
         }
 
-        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+        const schedule_view = schedule.querySelector(".WeekScheduleDisplay");
 
-        schedule.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
+        schedule_view.querySelectorAll(".schedule_meeting.course_" + course_index).forEach((meeting) => {
             meeting.classList.add("schedule_unfocused_section");
         });
 
         this.load_schedule_section(course_index, section_index);
-        schedule
+        schedule_view
             .querySelectorAll(".schedule_meeting.course_" + course_index + ":not(.schedule_unfocused_section)")
             .forEach((meeting) => {
                 meeting.classList.add("schedule_focused_section");
@@ -350,24 +362,29 @@ class Schedule {
             });
 
         for (const overlap_index of this.schedule_overlap_with([[course_index, section_index]], course_index)) {
-            schedule.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
+            schedule_view.querySelectorAll(".schedule_meeting.course_" + overlap_index).forEach((meeting) => {
                 meeting.classList.add("overlapping_section");
             });
         }
     }
 
     unhover_schedule_section() {
-        const schedule = document.querySelector("#CSPBuildScheduleTab .WeekScheduleDisplay");
+        const schedule = document.querySelector("#CSPBuildScheduleTab");
+        schedule.querySelectorAll(".hovered_section").forEach((element) => {
+            element.classList.remove("hovered_section");
+        });
 
-        schedule.querySelectorAll(".schedule_focused_section").forEach((meeting) => {
+        const schedule_view = schedule.querySelector(".WeekScheduleDisplay");
+
+        schedule_view.querySelectorAll(".schedule_focused_section").forEach((meeting) => {
             remove_element(meeting);
         });
 
-        schedule.querySelectorAll(".schedule_unfocused_section").forEach((meeting) => {
+        schedule_view.querySelectorAll(".schedule_unfocused_section").forEach((meeting) => {
             meeting.classList.remove("schedule_unfocused_section");
         });
 
-        schedule.querySelectorAll(".overlapping_section").forEach((meeting) => {
+        schedule_view.querySelectorAll(".overlapping_section").forEach((meeting) => {
             meeting.classList.remove("overlapping_section");
         });
     }
@@ -412,11 +429,10 @@ class Schedule {
     correct_async_course_visibility() {
         const async_list = document.getElementById("byArrangementCoursesDiv");
         const async_courses = async_list.querySelectorAll(".async_course:not(.header)");
-        
+
         if ([...async_courses].some((element) => element.style.display != "none")) {
             async_list.style.display = "";
-        }
-        else {
+        } else {
             async_list.style.display = "none";
         }
     }
