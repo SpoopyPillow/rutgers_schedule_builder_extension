@@ -81,8 +81,8 @@
 }
 
 .sidebar_control {
-    position: absolute;
-    bottom: 10px;
+    position: fixed;
+    bottom: 75px;
     border-top: 1px solid #fea;
     background: #ffd;
     display: block;
