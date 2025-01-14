@@ -3,14 +3,11 @@
     "name": "Better Rutgers Schedule Builder",
     "description": "Reworks Rutger's Course Schedule Planner to be more user-friendly.",
     "version": "1.0",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "tabs"],
     "background": {
         "service_worker": "background.js"
     },
-    "action": {
-        "default_popup": "popup/popup.html",
-        "default_title": "Better Rutgers Schedule Builder"
-    },
+    "action": {},
     "content_scripts": [
         {
             "js": ["scripts/utils.js", "scripts/schedule.js", "scripts/global.js", "scripts/content.js"],
