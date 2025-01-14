@@ -116,13 +116,29 @@ class Schedule {
 
             schedule_sidebar.appendChild(template_clone);
         }
+
+        schedule_sidebar.appendChild(this.create_sidebar_control());
         this.update_courses_has_section();
         this.initialize_async_courses();
     }
 
-    async toggle_section_list(course, course_index) {
-        const course_data = this.courses[course_index];
+    create_sidebar_control() {
+        const sidebar_control = document.createElement("div");
+        sidebar_control.className = "sidebar_control";
+        const remove_all = document.createElement("button");
+        remove_all.textContent = "Deselect All";
+        remove_all.onclick = (event) => {
+            this.schedule_section = new Array(this.schedule_section.length).fill(-1);
+            this.load_schedule();
+            this.load_async_courses();
+            this.load_course_list();
+        };
+        sidebar_control.appendChild(remove_all);
 
+        return sidebar_control;
+    }
+
+    async toggle_section_list(course, course_index) {
         this.unfocus_schedule_course();
         this.unfocus_async_course();
         remove_element(course.parentElement.querySelector(".section_list"));
@@ -142,6 +158,7 @@ class Schedule {
 
         const template_section = await load_template("template_section");
 
+        const course_data = this.courses[course_index];
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
             if (!course_data.selected[section_index]) {
                 continue;
