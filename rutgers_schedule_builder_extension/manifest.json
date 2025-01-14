@@ -1,9 +1,9 @@
 {
     "manifest_version": 3,
-    "name": "Better Rutgers Schedule Builder",
-    "description": "Reworks Rutger's Course Schedule Planner to be more user-friendly.",
+    "name": "Rutgers ScheduleFlow",
+    "description": "Reworks Rutger's Course Schedule Planner to help make building the perfect schedule easier.",
     "version": "1.0",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["scripting"],
     "background": {
         "service_worker": "background.js"
     },
