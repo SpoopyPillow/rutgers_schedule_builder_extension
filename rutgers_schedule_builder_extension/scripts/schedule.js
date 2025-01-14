@@ -660,10 +660,7 @@ class Schedule {
         return output;
     }
 
-    fetch_save_schedule() {
-        const schedule_builder = document.getElementById("CSPBuildScheduleTab");
-        const label = schedule_builder.querySelector('div[dojoattachpoint="noMessage"] input').value;
-
+    fetch_save_schedule(label) {
         const indicies = new Array();
         for (const [course_index, course] of this.courses.entries()) {
             const section_index = this.schedule_section[course_index];

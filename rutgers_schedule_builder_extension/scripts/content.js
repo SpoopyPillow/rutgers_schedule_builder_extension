@@ -44,7 +44,14 @@ function alter_page() {
     save_button.textContent = "Save";
     save_button.style.margin = "3px";
     save_button.onclick = (event) => {
-        schedule_data.fetch_save_schedule();
+        const input = document.querySelector('#CSPBuildScheduleTab div[dojoattachpoint="noMessage"] input');
+        if (input.value === "") {
+            alert("Input a schedule name.");
+            return;
+        }
+        schedule_data.fetch_save_schedule(input.value);
+        input.placeholder = "\"" + input.value + "\" saved";
+        input.value = "";
     };
     control_area.appendChild(save_button);
 

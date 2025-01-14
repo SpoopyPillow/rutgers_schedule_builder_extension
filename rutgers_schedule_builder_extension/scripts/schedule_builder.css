@@ -184,6 +184,7 @@
 
 .async_course .status {
     width: 100px;
+    text-transform: uppercase;
 }
 
 .async_course.header {
