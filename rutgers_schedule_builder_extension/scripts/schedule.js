@@ -14,7 +14,7 @@ class Schedule {
         "college avenue": 1,
         busch: 2,
         livingston: 3,
-        "cook/douglass": 4,
+        "c/d": 4,
         downtown: 5,
         camden: 6,
         newark: 7,

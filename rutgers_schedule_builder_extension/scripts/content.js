@@ -48,8 +48,9 @@ function alter_page() {
     };
     control_area.appendChild(save_button);
 
-    const info = document.createElement("span");
-    info.textContent = "*Reload page to see recently saved schedules";
+    const info = document.createElement("b");
+    info.textContent = "* RELOAD PAGE TO SEE SAVED SCHEDULES (WILL ERASE CURRENT PROGRESS)";
+    info.style.margin = "3px";
     control_area.appendChild(info);
 
     for (const element of document.querySelectorAll(".box-button-controls")) {

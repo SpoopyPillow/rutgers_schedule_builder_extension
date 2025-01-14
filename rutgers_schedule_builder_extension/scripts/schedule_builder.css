@@ -3,6 +3,7 @@
     border: 1px solid;
     border-color: #ffd #ffd #fea #ffd;
     padding-right: 2px;
+    cursor: pointer;
 }
 
 .course > span {
@@ -60,6 +61,10 @@
     margin: 0;
     border-bottom-color: #ffd;
     font-weight: bold;
+}
+
+.section {
+    cursor: pointer;
 }
 
 .section.selected_section {
