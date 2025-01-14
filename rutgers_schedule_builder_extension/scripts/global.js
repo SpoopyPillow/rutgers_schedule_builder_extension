@@ -1,1 +1,1 @@
-var schedule_data;
+var schedule_data = new Schedule(null, null, null);

@@ -60,6 +60,25 @@ class Schedule {
         this.schedule_section.push(selected);
     }
 
+    update_schedule_data(schedule_data) {
+        this.term = schedule_data.term;
+        this.year = schedule_data.year;
+        this.student_id = schedule_data.student_id;
+
+        const new_selected = new Array();
+        for (const new_course of schedule_data.courses) {
+            const index = this.courses.findIndex((course) => course.equals(new_course));
+
+            if (index != -1 && new_course.selected[this.schedule_section[index]]) {
+                new_selected.push(this.schedule_section[index]);
+            } else {
+                new_selected.push(-1);
+            }
+        }
+        this.courses = schedule_data.courses;
+        this.schedule_section = new_selected;
+    }
+
     async load_course_list() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
         const template = await load_template("template_course");
@@ -180,13 +199,12 @@ class Schedule {
 
     update_courses_has_section() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
-        
-        for (const [course_index, img] of schedule_sidebar.querySelectorAll(".course img").entries()) {
+
+        for (const [course_index, course] of schedule_sidebar.querySelectorAll(".course").entries()) {
             if (this.schedule_section[course_index] === -1) {
-                img.style.backgroundColor = "red";
-            }
-            else {
-                img.style.backgroundColor = "green";
+                course.querySelector("img").style.backgroundColor = "red";
+            } else {
+                course.querySelector("img").style.backgroundColor = "green";
             }
         }
     }
@@ -198,7 +216,7 @@ class Schedule {
         remove_children(selected_section);
         schedule_sidebar.querySelectorAll(".selected_section").forEach((element) => {
             element.classList.remove("selected_section");
-        })
+        });
 
         const section_index = this.schedule_section[course_index];
         if (section_index === -1) {
@@ -480,6 +498,7 @@ class Schedule {
         }
 
         this.correct_async_course_visibility();
+        this.load_async_courses();
     }
 
     load_async_courses() {
@@ -673,6 +692,14 @@ class Course {
         this.selected = new Array();
     }
 
+    equals(x) {
+        return (
+            this.code === x.code &&
+            this.sections.length === x.sections.length &&
+            (this.sections.length === 0 || this.sections[0].equals(x.sections[0]))
+        );
+    }
+
     append_section(section, selected = true) {
         this.sections.push(section);
         this.selected.push(selected);
@@ -685,6 +712,10 @@ class Section {
         this.number = number;
         this.status = status;
         this.meetings = new Array();
+    }
+
+    equals(x) {
+        return this.index === x.index;
     }
 
     append_meeting(meeting) {

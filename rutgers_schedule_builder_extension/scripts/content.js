@@ -58,11 +58,16 @@ function alter_page() {
 }
 
 function update_schedule_builder() {
+    show_schedule();
     remove_original_meetings();
-    extract_selected_courses();
+    schedule_data.update_schedule_data(extract_schedule());
     schedule_data.load_course_list();
     schedule_data.load_schedule();
-    console.log(schedule_data);
+}
+
+function show_schedule() {
+    const schedule_view = document.getElementById("ScheduleDisplayID");
+    schedule_view.style.visibility = "visible";
 }
 
 function remove_original_meetings() {
@@ -75,9 +80,9 @@ function remove_original_meetings() {
     remove_children(async_courses);
 }
 
-function extract_selected_courses() {
+function extract_schedule() {
     const script = document.querySelector("script").innerHTML;
-    schedule_data = new Schedule(
+    const new_schedule_data = new Schedule(
         script.match(/"yearterm":"(\d+)"/)[1].slice(0, 4),
         script.match(/"yearterm":"(\d+)"/)[1].slice(4, 5),
         script.match(/"studentId":"(\d+)"/)[1]
@@ -124,8 +129,10 @@ function extract_selected_courses() {
             course_data.append_section(section_data, section.querySelector("input").checked);
         }
 
-        schedule_data.append_course(course_data);
+        new_schedule_data.append_course(course_data);
     }
+
+    return new_schedule_data;
 }
 
 async function inject_content() {
