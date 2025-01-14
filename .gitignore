@@ -1,1 +1,3 @@
 .venv
+*.crx
+*.pem
