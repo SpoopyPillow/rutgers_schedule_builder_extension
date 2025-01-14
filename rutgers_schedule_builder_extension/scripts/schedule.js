@@ -15,7 +15,7 @@ class Schedule {
         busch: 2,
         livingston: 3,
         "c/d": 4,
-        downtown: 5,
+        "downtown new brunswick": 5,
         camden: 6,
         newark: 7,
         online: "O",
