@@ -97,7 +97,7 @@ class Schedule {
 
             schedule_sidebar.appendChild(template_clone);
         }
-
+        this.update_courses_has_section();
         this.initialize_async_courses();
     }
 
@@ -171,10 +171,24 @@ class Schedule {
         if (overlapping.size > 0) {
             this.sync_overlapping_sections(course_index);
         }
+        this.update_courses_has_section();
         this.sync_selected_section(course_index);
 
         this.remove_schedule_section(course_index);
         this.load_schedule_section(course_index, this.schedule_section[course_index]);
+    }
+
+    update_courses_has_section() {
+        const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
+        
+        for (const [course_index, img] of schedule_sidebar.querySelectorAll(".course img").entries()) {
+            if (this.schedule_section[course_index] === -1) {
+                img.style.backgroundColor = "red";
+            }
+            else {
+                img.style.backgroundColor = "green";
+            }
+        }
     }
 
     sync_selected_section(course_index) {

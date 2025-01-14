@@ -5,13 +5,20 @@
     padding-right: 2px;
 }
 
-.course span {
+.course > span {
     text-align: left;
     padding: 3px;
     vertical-align: middle;
     font: 400 11px Arial, sans-serif;
-    padding: 3px;
+}
+
+.course .dropdown {
+    display: inline-block;
+    margin: 3px;
+    height: 7px;
+    width: 7px;
     vertical-align: middle;
+    background-position: 0px 0px;
 }
 
 .course .code {
@@ -165,7 +172,7 @@
 }
 
 .async_course.async_focused_course {
-    background-color: #ffd;
+    background-color: #fea;
 }
 
 .async_course.async_focused_section {
