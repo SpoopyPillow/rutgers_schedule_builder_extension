@@ -1,9 +1,9 @@
-async function load_template(template_id) {
-    const url = chrome.runtime.getURL("templates.html");
-    const templates = document.createElement("div");
-    templates.innerHTML = await (await fetch(url)).text();
-    const template = templates.querySelector("#" + template_id);
-    return template;
+function load_template(template_id) {
+    return document.querySelector("template#" + template_id);
+}
+
+function clone_template(template_id) {
+    return load_template(template_id).content.cloneNode(true);
 }
 
 function clone_with_sync(element) {

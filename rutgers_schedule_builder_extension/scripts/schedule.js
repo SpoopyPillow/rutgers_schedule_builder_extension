@@ -79,17 +79,16 @@ class Schedule {
         this.schedule_section = new_selected;
     }
 
-    async load_course_list() {
+    load_course_list() {
         const schedule_sidebar = document.querySelector("#CSPBuildScheduleTab .schedule_sidebar");
-        const template = await load_template("template_course");
 
         remove_children(schedule_sidebar);
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
             const course_data = this.courses[course_index];
 
-            const template_clone = template.content.cloneNode(true);
-            const course = template_clone.querySelector(".course");
+            const template = clone_template("template_course");
+            const course = template.querySelector(".course");
 
             course.querySelector(".code").textContent = course_data.code;
             course.querySelector(".title").textContent = course_data.title;
@@ -114,7 +113,7 @@ class Schedule {
                 }
             };
 
-            schedule_sidebar.appendChild(template_clone);
+            schedule_sidebar.appendChild(template);
         }
 
         schedule_sidebar.appendChild(this.create_sidebar_control());
@@ -138,7 +137,7 @@ class Schedule {
         return sidebar_control;
     }
 
-    async toggle_section_list(course, course_index) {
+    toggle_section_list(course, course_index) {
         this.unfocus_schedule_course();
         this.unfocus_async_course();
         remove_element(course.parentElement.querySelector(".section_list"));
@@ -152,11 +151,9 @@ class Schedule {
         course.parentElement.querySelector(".focused_course")?.classList.remove("focused_course");
         course.classList.add("focused_course");
 
-        const template_section_list_clone = (await load_template("template_section_list")).content.cloneNode(true);
-        const section_list = template_section_list_clone.querySelector(".section_list");
+        const template_section_list = clone_template("template_section_list");
+        const section_list = template_section_list.querySelector(".section_list");
         const possible_sections = section_list.querySelector(".possible_sections_list");
-
-        const template_section = await load_template("template_section");
 
         const course_data = this.courses[course_index];
         for (let section_index = 0; section_index < course_data.selected.length; section_index++) {
@@ -164,9 +161,9 @@ class Schedule {
                 continue;
             }
 
-            const template_section_clone = template_section.content.cloneNode(true);
+            const template_section = clone_template("template_section");
 
-            const section = template_section_clone.querySelector(".section");
+            const section = template_section.querySelector(".section");
             section.classList.add("section_" + section_index);
 
             section.querySelector(".number").textContent = course_data.sections[section_index].number;
@@ -186,10 +183,10 @@ class Schedule {
                 this.load_async_courses();
             };
 
-            possible_sections.appendChild(template_section_clone);
+            possible_sections.appendChild(template_section);
         }
 
-        course.after(template_section_list_clone);
+        course.after(template_section_list);
         this.sync_overlapping_sections(course_index);
         this.sync_selected_section(course_index);
     }
@@ -350,12 +347,11 @@ class Schedule {
         });
     }
 
-    async hover_schedule_meeting(meeting, course_data, section_data, meeting_data) {
+    hover_schedule_meeting(meeting, course_data, section_data, meeting_data) {
         const body = document.querySelector("body");
 
-        const template = await load_template("template_popup");
-        const template_clone = template.content.cloneNode(true);
-        const popup = template_clone.querySelector(".popup");
+        const template = clone_template("template_popup");
+        const popup = template.querySelector(".popup");
         const popup_info = popup.querySelector(".popup_information");
         popup_info.className += " dijitTooltipContainer dijitTooltipContents";
 
@@ -460,10 +456,9 @@ class Schedule {
         }
     }
 
-    async create_async_course(position, title, code, section, index, status) {
-        const template = await load_template("template_async_course");
-        const template_clone = template.content.cloneNode(true);
-        const async_course = template_clone.querySelector(".async_course");
+    create_async_course(position, title, code, section, index, status) {
+        const template = clone_template("template_async_course");
+        const async_course = template.querySelector(".async_course");
 
         async_course.querySelector(".position").textContent = position;
         async_course.querySelector(".title").textContent = title;
@@ -486,7 +481,7 @@ class Schedule {
         }
     }
 
-    async initialize_async_courses() {
+    initialize_async_courses() {
         const async_courses = document.getElementById("byArrangementCoursesDiv");
 
         const text = document.createElement("div");
@@ -494,21 +489,14 @@ class Schedule {
         text.textContent = "By arrangement courses:";
         async_courses.appendChild(text);
 
-        const header = await this.create_async_course("", "title", "code", "section", "index", "status");
+        const header = this.create_async_course("", "title", "code", "section", "index", "status");
         header.classList.add("header");
         async_courses.appendChild(header);
 
         for (let course_index = 0; course_index < this.courses.length; course_index++) {
             const course_data = this.courses[course_index];
 
-            const async_course = await this.create_async_course(
-                "",
-                course_data.title,
-                course_data.code,
-                "",
-                "",
-                ""
-            );
+            const async_course = this.create_async_course("", course_data.title, course_data.code, "", "", "");
             async_course.classList.add("course_" + course_index);
             async_course.style.display = "none";
             async_courses.appendChild(async_course);

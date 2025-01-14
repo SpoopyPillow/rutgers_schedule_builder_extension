@@ -136,7 +136,16 @@ function extract_schedule() {
     return new_schedule_data;
 }
 
+async function inject_html() {
+    return fetch(chrome.runtime.getURL("/templates.html"))
+        .then((r) => r.text())
+        .then((html) => {
+            document.body.insertAdjacentHTML("beforeend", html);
+        });
+}
+
 async function inject_content() {
+    await inject_html();
     await wait_for_element("#CSPBuildScheduleTab");
     restructure_original();
 }
