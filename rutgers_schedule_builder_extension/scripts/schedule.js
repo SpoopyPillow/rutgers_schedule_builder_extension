@@ -50,7 +50,12 @@ class Schedule {
             (campus1 == "downtown" && campus2 == "college avenue")
         ) {
             return 0;
-        } else {
+        } else if (
+            (campus1 == "online" || campus2 == "online")
+        ) {
+            return 0;
+        }
+        else {
             return 40;
         }
     }

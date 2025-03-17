@@ -90,6 +90,7 @@ function remove_original_meetings() {
 
 function extract_schedule() {
     const script = document.querySelector("script").innerHTML;
+    // TODO fix when first accessing
     const new_schedule_data = new Schedule(
         script.match(/"yearterm":"(\d+)"/)[1].slice(0, 4),
         script.match(/"yearterm":"(\d+)"/)[1].slice(4, 5),
