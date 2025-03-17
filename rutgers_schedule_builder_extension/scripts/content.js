@@ -90,11 +90,14 @@ function remove_original_meetings() {
 
 function extract_schedule() {
     const script = document.querySelector("script").innerHTML;
-    // TODO fix when first accessing
+
+    const semester = script.match(/window.csp.semester='(\d+)';/)[1];
+    const student_id = script.match(/"studentId":"(\d+)"/)[1];
+
     const new_schedule_data = new Schedule(
-        script.match(/"yearterm":"(\d+)"/)[1].slice(0, 4),
-        script.match(/"yearterm":"(\d+)"/)[1].slice(4, 5),
-        script.match(/"studentId":"(\d+)"/)[1]
+        semester.slice(-4),
+        semester.slice(0, -4),
+        student_id
     );
 
     const courses = document.querySelectorAll("#SectionSelectID .course");
